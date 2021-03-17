@@ -12,6 +12,7 @@ target 'ProjectBuddies' do
 	pod 'FirebaseFirestoreSwift'
 	pod 'MultilineTextField'
 	pod 'SDWebImage'
+	pod 'JGProgressHUD'
 
   target 'ProjectBuddiesTests' do
     inherit! :search_paths
