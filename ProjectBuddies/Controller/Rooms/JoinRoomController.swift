@@ -7,9 +7,15 @@
 
 import UIKit
 
+protocol JoinRoomDelegate: class {
+    func controllerDidFinishUploadingRoom(controller: JoinRoomController)
+}
+
 class JoinRoomController: UIViewController {
     
     // MARK: - Properties
+    
+    weak var delegate: JoinRoomDelegate?
     
     private var keyLabel: CustomLabel = {
         var l = CustomLabel(context: "Key", fontType: K.Font.regular!)
@@ -52,7 +58,18 @@ class JoinRoomController: UIViewController {
     // MARK: - Actions
     
     @objc func joinTapped() {
-        self.navigationController?.popViewController(animated: true)
+        guard let key = keyTextField.text else { return }
+        
+        showLoader(true)
+        RoomService.joinIfCorrectKey(key: key) { error in
+            self.showLoader(false)
+
+            if let error = error {
+                print("Error adding into room: \(error.localizedDescription)")
+                return
+            }
+            self.delegate?.controllerDidFinishUploadingRoom(controller: self)
+        }
     }
     
     @objc func cancelTapped() {

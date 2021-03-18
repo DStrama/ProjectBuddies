@@ -100,7 +100,7 @@ class CreateRoomController: UIViewController {
         guard let image = roomImage.image else { return }
         
         showLoader(true)
-        RoomService.uploadRoom(name: name, image: image) { (error) in
+        RoomService.uploadRoom(name: name, image: image) { error in
             self.showLoader(false)
             
             if let error = error {
@@ -109,7 +109,6 @@ class CreateRoomController: UIViewController {
             }
             
             self.delegate?.controllerDidFinishUploadingRoom(controller: self)
-            self.navigationController?.popViewController(animated: true)
         }
     }
     

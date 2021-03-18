@@ -27,7 +27,7 @@ class RoomsController: UITableViewController {
     // MARK: - API
     
     private func fetchRooms() {
-        RoomService.fetchRooms { rooms in
+        RoomService.fetchUserRooms { rooms in
             self.rooms = rooms
             self.tableView.refreshControl?.endRefreshing()
             self.tableView.reloadData()
@@ -67,8 +67,9 @@ class RoomsController: UITableViewController {
     }
     
     @objc func joinRoom() {
-        print("DEBUG: create room")
+        print("DEBUG: join room")
         let controller = JoinRoomController()
+        controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -97,15 +98,15 @@ extension RoomsController {
         return UISwipeActionsConfiguration(actions: [delete])
     }
     
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 56
+    }
+    
     private func deleteAction(at indexPath: IndexPath) -> UIContextualAction {
         let action = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion) in
 
-            RoomService.deleteRoom(id: self.rooms[indexPath.row].id) { (error) in
-                if let error = error {
-                    print("Error removing document: \(error)")
-                    return
-                }
-            }
+            RoomService.updateAfterRemovingRoom(roomId: self.rooms[indexPath.row].id, owner: self.rooms[indexPath.row].owner)
+            
             self.rooms.remove(at: indexPath.row)
             self.tableView.deleteRows(at: [indexPath], with: .automatic)
             completion(true)
@@ -134,6 +135,16 @@ extension RoomsController {
 extension RoomsController: CreateRoomDelegate {
     
     func controllerDidFinishUploadingRoom(controller: CreateRoomController) {
+        self.handleRefresh()
+        controller.navigationController?.popViewController(animated: true)
+    }
+}
+
+// MARK: - JoinRoomDelegate
+
+extension RoomsController: JoinRoomDelegate {
+    
+    func controllerDidFinishUploadingRoom(controller: JoinRoomController) {
         self.handleRefresh()
         controller.navigationController?.popViewController(animated: true)
     }

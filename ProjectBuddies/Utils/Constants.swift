@@ -43,5 +43,6 @@ struct K {
     struct FStore {
         static let COLLECTION_USERS = Firestore.firestore().collection("users")
         static let COLLECTION_ROOMS = Firestore.firestore().collection("rooms")
+        static let COLLECTION_GROPUS = Firestore.firestore().collection("grups")
     }
 }
