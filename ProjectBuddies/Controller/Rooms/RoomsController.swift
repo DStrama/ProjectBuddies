@@ -9,10 +9,19 @@ import UIKit
 
 private let reuseIdentifier = "RoomCell"
 
-class RoomsController: UITableViewController {
+class RoomsController: UITableViewController, UISearchControllerDelegate, UISearchResultsUpdating {
     // MARK: - Properties
     
     private var rooms = [Room]()
+    private var filteredRooms = [Room]()
+    private var isFiltered : Bool = false
+    
+    private let searchBar: UISearchController = {
+        let sb = UISearchController(searchResultsController: nil)
+        sb.obscuresBackgroundDuringPresentation = false
+        sb.searchBar.placeholder = "Search room"
+        return sb
+    }()
     
     // MARK: - Lifecycle
     
@@ -22,6 +31,7 @@ class RoomsController: UITableViewController {
         configureTableView()
         fetchRooms()
         configureUI()
+        setUpSearchBar()
     }
     
     // MARK: - API
@@ -37,10 +47,11 @@ class RoomsController: UITableViewController {
     // MARK: - Helpers
     
     private func configureTableView() {
-        tableView.backgroundColor = K.Color.white
+        tableView.backgroundColor = K.Color.lighterCreme
         tableView.register(RoomCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.separatorStyle = .none;
     }
     
     private func setupNavigationBar() {
@@ -49,12 +60,23 @@ class RoomsController: UITableViewController {
         navigationItem.rightBarButtonItem = createBarButtonItem
         navigationItem.leftBarButtonItem = joinBarButtonItem
         navigationItem.title = "Rooms"
+        navigationController?.navigationBar.barTintColor = K.Color.lighterCreme
     }
     
     private func configureUI() {
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         tableView.refreshControl = refresher
+    }
+    
+    private func setUpSearchBar() {
+        searchBar.delegate = self
+        searchBar.searchResultsUpdater = self
+        navigationItem.searchController = searchBar
+        navigationItem.hidesSearchBarWhenScrolling = false
+        searchBar.hidesNavigationBarDuringPresentation = true
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController!.navigationBar.sizeToFit()
     }
     
     // MARK: - Actions
@@ -84,12 +106,14 @@ class RoomsController: UITableViewController {
 extension RoomsController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return rooms.count
+        return isFiltered ? filteredRooms.count : rooms.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! RoomCell
-        cell.viewModel = RoomViewModel(room: rooms[indexPath.row])
+        let tmp = isFiltered ? filteredRooms[indexPath.row] :  rooms[indexPath.row]
+        cell.viewModel = RoomViewModel(room: tmp)
+        cell.selectionStyle = .none
         return cell
     }
     
@@ -99,7 +123,7 @@ extension RoomsController {
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 56
+        return 104
     }
     
     private func deleteAction(at indexPath: IndexPath) -> UIContextualAction {
@@ -123,9 +147,8 @@ extension RoomsController {
 
 extension RoomsController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("DEBUG: select room")
         let controller = GroupController()
-        controller.room = rooms[indexPath.row]
+        controller.room = self.rooms[indexPath.row]
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -147,5 +170,23 @@ extension RoomsController: JoinRoomDelegate {
     func controllerDidFinishUploadingRoom(controller: JoinRoomController) {
         self.handleRefresh()
         controller.navigationController?.popViewController(animated: true)
+    }
+}
+
+// MARK: - UISearchResultsUpdating
+
+extension RoomsController {
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        let text = searchController.searchBar.text!.lowercased()
+        let filtered = rooms.filter({ $0.name.lowercased().contains(text)})
+        filteredRooms = filtered
+        print(filtered)
+         if(filtered.count == 0){
+            isFiltered = false
+         } else {
+            isFiltered = true
+         }
+         self.tableView.reloadData()
     }
 }

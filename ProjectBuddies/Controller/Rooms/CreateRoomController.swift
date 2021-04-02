@@ -19,30 +19,46 @@ class CreateRoomController: UIViewController {
     
     private var roomImage: UIImageView = {
         let iv = UIImageView(image: UIImage(named: "group"))
-        iv.contentMode = .scaleAspectFill
+        iv.contentMode = .scaleAspectFit
+        iv.backgroundColor = K.Color.searchBarGray
         iv.clipsToBounds = true
-        iv.backgroundColor = .lightGray
         iv.setDimensions(height: 80, width: 80)
-        iv.layer.cornerRadius = 40
+        iv.layer.masksToBounds = true
+        iv.layer.cornerRadius = 34
+        iv.layer.cornerCurve = CALayerCornerCurve.continuous
+        iv.layer.borderWidth = 0.5
+        iv.layer.borderColor = K.Color.lightBlack.cgColor
         return iv
     }()
     
     let editButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle( "Change photo", for: .normal)
+        btn.setTitle( "Upload", for: .normal)
         btn.setTitleColor(K.Color.black, for: .normal)
         return btn
     }()
     
     
     private var titleLabel: CustomLabel = {
-        var l = CustomLabel(context: "Title", fontType: K.Font.regular!)
+        var l = CustomLabel(fontType: K.Font.regular!)
+        l.text = "Room name"
         return l
     }()
     
-    private var titleTextField: UITextField = {
-        var tf = CustomTextField(placeholder: "Ex: CS50 lab", txtColor: K.Color.black, bgColor: K.Color.clear)
-        return tf
+    private lazy var titleTextField: InputTextView = {
+        var tv = InputTextView()
+        tv.placeholderText = "Enter name.."
+        tv.font = K.Font.regular
+        tv.delegate = self
+        tv.backgroundColor = K.Color.white
+        return tv
+    }()
+    
+    private var characterCountLabel: UILabel = {
+        let l = UILabel()
+        l.textColor = K.Color.lightGray
+        l.font = K.Font.small
+        return l
     }()
     
     private var createButton: UIButton = {
@@ -57,6 +73,9 @@ class CreateRoomController: UIViewController {
         super.viewDidLoad()
         setupNavigationBar()
         setUpViewsAndConstraints()
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
+        view.addGestureRecognizer(tap)
     }
     
     // MARK: - API
@@ -65,16 +84,19 @@ class CreateRoomController: UIViewController {
     // MARK: - Helpers
     
     private func setupNavigationBar() {
-        let cancelBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelTapped))
-        let doneBarButtonItem = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(doneTapped))
+        let image = UIImage(systemName: "chevron.left")
+        let backBarButtonItem = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(cancelTapped))
+        let doneBarButtonItem = UIBarButtonItem(title: "Create", style: .plain, target: self, action: #selector(doneTapped))
         navigationItem.title = "Create room"
         navigationItem.rightBarButtonItem = doneBarButtonItem
-        navigationItem.leftBarButtonItem = cancelBarButtonItem
+        navigationItem.leftBarButtonItem = backBarButtonItem
     }
     
     private func setUpViewsAndConstraints() {
+        characterCountLabel.text = "0/35"
+        
         editButton.addTarget(self, action: #selector(editImage), for: .touchUpInside)
-        view.backgroundColor = K.Color.white
+        view.backgroundColor = K.Color.lighterCreme
         view.isUserInteractionEnabled = true
         
         view.addSubview(roomImage)
@@ -89,14 +111,23 @@ class CreateRoomController: UIViewController {
         titleLabel.anchor(top: editButton.bottomAnchor, left: view.leftAnchor, paddingTop: 12, paddingLeft: 12, paddingRight: 12)
         
         view.addSubview(titleTextField)
-        titleTextField.anchor(top: titleLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 12, paddingLeft: 12, paddingRight: 12)
+        titleTextField.anchor(top: titleLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 16, paddingLeft: 12, paddingRight: 12, height: 64)
         
+        view.addSubview(characterCountLabel)
+        characterCountLabel.anchor(top: titleTextField.bottomAnchor, right: view.rightAnchor, paddingTop: 8, paddingRight: 12)
+        
+    }
+    
+    private func checkMaxLength(_ textView: UITextView, maxLength: Int) {
+        if (textView.text.count) > maxLength {
+            textView.deleteBackward()
+        }
     }
     
     // MARK: - Actions
     
     @objc func doneTapped() {
-        guard let name = titleTextField.text else { return }
+        guard let name = titleTextField.text, !name.isEmpty else { return }
         guard let image = roomImage.image else { return }
         
         showLoader(true)
@@ -117,8 +148,11 @@ class CreateRoomController: UIViewController {
     }
     
     @objc func editImage() {
-        print("edit photo")
         showImagePickerControllerActionSheet()
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
 }
 
@@ -156,3 +190,22 @@ extension CreateRoomController: UIImagePickerControllerDelegate, UINavigationCon
         dismiss(animated: true, completion: nil)
     }
 }
+
+// MARK: - UITextFieldDelegate
+
+extension CreateRoomController: UITextViewDelegate {
+    
+    func textViewDidChange(_ textView: UITextView) {
+        checkMaxLength(textView, maxLength: 35)
+        let count = textView.text.count
+        characterCountLabel.text = "\(count)/35"
+    }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            return false
+        }
+        return true
+    }
+}
+

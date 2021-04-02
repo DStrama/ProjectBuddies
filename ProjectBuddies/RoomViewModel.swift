@@ -19,6 +19,14 @@ struct RoomViewModel {
         return room.name
     }
     
+    var members: Int? {
+        room.members.count
+    }
+    
+    var groups: Int? {
+        return room.groups.count
+    }
+    
     init(room: Room) {
         self.room = room
     }

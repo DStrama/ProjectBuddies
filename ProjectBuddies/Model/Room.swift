@@ -11,6 +11,7 @@ struct Room {
     let id: String
     let owner: String
     var members: [String]
+    var groups: [String]
     var name: String
     let imageUrl: String
     let key : String
@@ -23,6 +24,7 @@ struct Room {
         self.imageUrl = dictionary["imageUrl"] as? String ?? ""
         self.key = dictionary["key"] as? String ?? ""
         self.members = dictionary["members"] as? [String] ?? []
+        self.groups = dictionary["groups"] as? [String] ?? []
         self.timestamp = dictionary["timestamp"] as? Timestamp ?? Timestamp(date: Date())
     }
 }

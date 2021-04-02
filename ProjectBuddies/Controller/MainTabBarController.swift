@@ -30,7 +30,7 @@ class MainTabBarController: UITabBarController {
     // MARK: - API
     
     private func fetchUser() {
-        UserService.fetchUser { user in
+        UserService.fetchCurrentUser { user in
             self.user = user
         }
     }
@@ -54,9 +54,9 @@ class MainTabBarController: UITabBarController {
         
         let rooms = templatNavigationController(unselectedImage: UIImage(systemName: "folder")!, selectedImage: UIImage(systemName: "folder.fill")!, rootViewController: RoomsController(), title: "Rooms")
         
-        let messages = templatNavigationController(unselectedImage: UIImage(systemName: "message")!, selectedImage: UIImage(systemName: "message.fill")!, rootViewController: MessagesControlller(), title: "Messages")
+        let messages = templatNavigationController(unselectedImage: UIImage(systemName: "message")!, selectedImage: UIImage(systemName: "message.fill")!, rootViewController: MessagesController(), title: "Messages")
         
-        let notifications = templatNavigationController(unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationControlller(), title: "Notification")
+        let notifications = templatNavigationController(unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationController(), title: "Notification")
         
         let profile = templatNavigationController(unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: ProfileController(user: user), title: "Profile")
         
