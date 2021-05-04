@@ -6,103 +6,172 @@
 //
 
 import UIKit
+import GoogleSignIn
+import FBSDKLoginKit
+import FBSDKCoreKit
+import Firebase
 
-class RegistrationController: UIViewController {
-    
+class RegistrationController: UIViewController, UIPageViewControllerDelegate {
+
     // MARK: - Properties
-    
+
     weak var delegate: AuthenticationDelegate?
-    
-    private let iconImage: UIImageView = {
-        let iv = UIImageView(image: #imageLiteral(resourceName: "logo"))
-        iv.contentMode = .scaleAspectFit
-        return iv
+
+    let signupLabel: UILabel = {
+        let l = UILabel()
+        l.text = "Sign up for ProjectBuddies"
+        l.font = K.Font.extraLargeBold
+        l.textAlignment = .center
+        return l
     }()
-    
-    private let emailTextField: CustomTextField = {
-        let tf = CustomTextField(placeholder: "Email", txtColor: K.Color.black, bgColor: K.Color.lightBlack)
-        return tf
+
+    let descriptionLabel: UILabel = {
+        let l = UILabel()
+        l.text = "Create profile and find people for\nlabolatory project classes."
+        l.numberOfLines = 0
+        l.font = K.Font.regular
+        l.textColor = K.Color.gray
+        l.textAlignment = .center
+        return l
     }()
-    
-    private let passwordTextField: CustomTextField = {
-        let tf = CustomTextField(placeholder: "Password", txtColor: K.Color.black, bgColor: K.Color.lightBlack)
-        tf.isSecureTextEntry = true
-        return tf
-    }()
-    
-    private let signUpButton: UIButton = {
+
+    private let emailButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle("Sign up", for: .normal)
-        btn.setTitleColor(.white, for: .normal)
-        btn.backgroundColor = K.Color.blue
+        btn.setTitle("Use email / phone", for: .normal)
+        btn.titleLabel?.font = K.Font.smallBold
+        btn.setTitleColor(.black, for: .normal)
+        btn.backgroundColor = K.Color.white
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = K.Color.lightGray.cgColor
+        let icon = UIImage(systemName: "person")
+        btn.tintColor = K.Color.black
+        btn.setImage(icon, for: .normal)
+        btn.imageView?.contentMode = .scaleAspectFit
+        btn.imageEdgeInsets = UIEdgeInsets(top: 0, left: -150, bottom: 0, right: 0)
         btn.setHeight(50)
         return btn
     }()
-    
+
+    private let facebookButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Continue with Facebook", for: .normal)
+        btn.titleLabel?.font = K.Font.smallBold
+        btn.setTitleColor(.black, for: .normal)
+        btn.backgroundColor = K.Color.white
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = K.Color.lightGray.cgColor
+        btn.setHeight(50)
+        return btn
+    }()
+
+    private let appleButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Continue with Apple", for: .normal)
+        btn.titleLabel?.font = K.Font.smallBold
+        btn.setTitleColor(.black, for: .normal)
+        btn.backgroundColor = K.Color.white
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = K.Color.black.cgColor
+        let icon = UIImage(systemName: "applelogo")
+        btn.tintColor = K.Color.black
+        btn.setImage(icon, for: .normal)
+        btn.imageView?.contentMode = .scaleAspectFit
+        btn.imageEdgeInsets = UIEdgeInsets(top: 0, left: -150, bottom: 0, right: 0)
+        btn.setHeight(50)
+        return btn
+    }()
+
+    private let googleButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Continue with Google", for: .normal)
+        btn.titleLabel?.font = K.Font.smallBold
+        btn.setTitleColor(.black, for: .normal)
+        btn.backgroundColor = K.Color.white
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = K.Color.lightGray.cgColor
+        btn.setHeight(50)
+        return btn
+    }()
+
     private let dontHaveAccountButton: UIButton = {
         let btn = UIButton(type: .system)
-        
         let atts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.black, .font: K.Font.regular!]
-        let boldAtts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.black, .font: K.Font.regularBold!]
-        
-        let attributedTitle = NSMutableAttributedString(string: "Have an acconut? ", attributes: atts)
+        let boldAtts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.red, .font: K.Font.regularBold!]
+
+        let attributedTitle = NSMutableAttributedString(string: "Already have an acconut? ", attributes: atts)
         attributedTitle.append(NSMutableAttributedString(string: "Log in", attributes: boldAtts))
-        
+
         btn.setAttributedTitle(attributedTitle, for: .normal)
         btn.addTarget(self, action: #selector(handleShowLogin), for: .touchUpInside)
+        btn.setHeight(80)
         return btn
     }()
 
     // MARK: - Lifecycle
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
-    }
-    
-    // MARK: - Helpers
-    
-    private func configureUI() {
-        signUpButton.addTarget(self, action: #selector(handleSignUp), for: .touchUpInside)
         
+    }
+
+    // MARK: - Helpers
+
+    private func configureUI() {
+        emailButton.addTarget(self, action: #selector(handleEmailSignup), for: .touchUpInside)
+        facebookButton.addTarget(self, action: #selector(handleFacebookSignup), for: .touchUpInside)
+
         view.backgroundColor = K.Color.white
         navigationController?.navigationBar.isHidden = true
 
-        view.addSubview(iconImage)
-        iconImage.centerX(inView: view)
-        iconImage.setDimensions(height: 160, width: 80)
-        iconImage.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 10)
-        
-        let stack = UIStackView(arrangedSubviews: [emailTextField, passwordTextField, signUpButton])
+        view.addSubview(signupLabel)
+        signupLabel.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 100, paddingLeft: 24, paddingRight: 24)
+
+        view.addSubview(descriptionLabel)
+        descriptionLabel.anchor(top: signupLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 12, paddingLeft: 24, paddingRight: 24)
+
+        let stack = UIStackView(arrangedSubviews: [emailButton, facebookButton, appleButton, googleButton])
         stack.axis = .vertical
-        stack.spacing = 20
-        
+        stack.spacing = 10
+
         view.addSubview(stack)
-        stack.anchor(top: iconImage.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 32, paddingLeft: 32, paddingRight: 32)
-        
+        stack.anchor(top: descriptionLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 24, paddingLeft: 24, paddingRight: 24)
+
+        dontHaveAccountButton.backgroundColor = K.Color.veryLightGray
         view.addSubview(dontHaveAccountButton)
         dontHaveAccountButton.centerX(inView: view)
-        dontHaveAccountButton.anchor(bottom: view.safeAreaLayoutGuide.bottomAnchor)
-        
-    }
-    
-    // MARK: - Actions
-    
-    @objc func handleShowLogin() {
-        self.navigationController?.popViewController(animated: true)
-    }
-    
-    @objc func handleSignUp() {
-         guard let email = emailTextField.text else { return }
-         guard let password = passwordTextField.text else { return }
+        dontHaveAccountButton.anchor(left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
 
-        let credentials = AuthCredentials(email: email, password: password, fullname: "", profileImage: UIImage(named: "profileImage")!)
-         AuthService.registerUser(withCredenctial: credentials) { error in
-             if let error = error {
-                 print("DEBUG: Failed to register user \(error.localizedDescription)")
-                 return
-             }
-            self.delegate?.anthenticationDidComplete()
-         }
-     }
+    }
+
+    // MARK: - Actions
+
+    @objc func handleShowLogin() {
+        let controller = LoginController()
+        controller.delegate = delegate
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+    }
+
+    // Facebook Sign Up
+
+    @objc func handleFacebookSignup() {
+
+    }
+
+    @objc func handleEmailSignup() {
+        let controller = SignupEmailController()
+        controller.delegate = self
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+    }
+}
+
+extension RegistrationController: SignupEmailControllerDelegate {
+    func didFinishSignup() {
+        dismiss(animated: true, completion: nil)
+        self.delegate?.anthenticationDidComplete()
+    }
 }

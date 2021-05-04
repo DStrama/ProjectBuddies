@@ -27,12 +27,9 @@ class InputTextView: UITextView {
     
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
-        layer.borderColor = K.Color.lightGray.cgColor
-        layer.borderWidth = 0.5
         addSubview(placeholderLabel)
         placeholderLabel.anchor(top: topAnchor, left: leftAnchor, paddingTop: 8, paddingLeft: 8)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTextDidChanged), name: UITextView.textDidChangeNotification, object: .none)
-    
     }
     
     required init?(coder: NSCoder) {

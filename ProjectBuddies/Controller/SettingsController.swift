@@ -15,10 +15,9 @@ class SettingsController: UITableViewController {
     // MARK: - Properties
     
     private let names = [
-        1 : ["Personal Information": ["Edit profile", "Account settings"]],
-        2 : ["Feedback": ["Rate Our App", "Share the App with Friends"]],
-        3 : ["Support": ["Get help", "See terms and privacy"]],
-        4 : ["Actions": ["Logout"]],
+        1 : ["Feedback": ["Rate Our App", "Share the App with Friends"]],
+        2 : ["Support": ["Get help", "See terms and privacy"]],
+        3 : ["Actions": ["Logout"]],
     ]
     
     private var objectArray = [Objects]()
@@ -46,17 +45,19 @@ class SettingsController: UITableViewController {
     
     private func setupNavigationBar() {
         let image = UIImage(systemName: "chevron.left")
-        image?.withTintColor(K.Color.black)
         let backBarButtonItem = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backToProfile))
+        backBarButtonItem.tintColor = K.Color.navyApp
         navigationItem.leftBarButtonItem = backBarButtonItem
     }
     
     private func setupTableView() {
-        tableView.backgroundColor = K.Color.white
+        tableView.backgroundColor = K.Color.lighterCreme
         tableView.register(SettingCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.delegate = self
         tableView.dataSource = self
         title = "Settings"
+        tableView.tableFooterView = UIView()
+        tableView.separatorInset = UIEdgeInsets.zero
     }
     
     @objc func backToProfile() {
@@ -88,8 +89,24 @@ extension SettingsController {
         return cell
     }
 
-    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return objectArray[section].sectionName
+//    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+//        return objectArray[section].sectionName
+//    }
+    
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+        let label = UILabel(frame: CGRect(x: 24, y: 10, width: tableView.frame.width, height: 20))
+        label.font = K.Font.regularBold
+        label.textColor = K.Color.white
+        label.text = objectArray[section].sectionName
+        label.textAlignment = .left
+        view.addSubview(label)
+        view.backgroundColor = K.Color.navyApp
+        return view
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 40
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -100,16 +117,14 @@ extension SettingsController {
         if indexPath.section == 0 {
 
         } else if indexPath.section == 1{
-            
+        
         } else if indexPath.section == 2{
-            
-        } else if indexPath.section == 3{
             switch indexPath.row {
             case 0:
 
                 do {
                     try Auth.auth().signOut()
-                    let controller = LoginController()
+                    let controller = RegistrationController()
                     controller.delegate = self.tabBarController as? MainTabBarController
                     let nav = UINavigationController(rootViewController: controller)
                     nav.modalPresentationStyle = .fullScreen

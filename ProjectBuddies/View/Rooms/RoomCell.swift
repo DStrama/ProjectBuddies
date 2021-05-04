@@ -31,21 +31,28 @@ class RoomCell: UITableViewCell {
     
     private let roomImageView: UIImageView = {
         let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
+        iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.image = #imageLiteral(resourceName: "logo")
+        iv.layer.masksToBounds = true
+        iv.layer.cornerRadius = 22.5
+        iv.layer.cornerCurve = CALayerCornerCurve.continuous
+        iv.layer.borderWidth = 1
+        iv.layer.borderColor = K.Color.lightBlack.cgColor
+        iv.layer.backgroundColor = K.Color.searchBarGray.cgColor
         return iv
     }()
     
     private let roomName: UILabel = {
         let l = UILabel()
-        l.font.withSize(16)
+        l.font = K.Font.largeBold
         return l
     }()
     
     let rightArrowButton: UIButton = {
         let btn = UIButton()
-        btn.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+        let image = UIImage(systemName: "chevron.right")!.withRenderingMode(.alwaysTemplate)
+        btn.setImage(image, for: .normal)
+        btn.tintColor = K.Color.navyApp
         return btn
     }()
     
@@ -110,32 +117,26 @@ class RoomCell: UITableViewCell {
         backgroundColor = K.Color.lighterCreme
         
         contentView.addSubview(self.container)
-        container.fillSuperview()
+        container.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 18, paddingBottom: 8, paddingRight: 18)
         
         container.addSubview(roomImageView)
-        roomImageView.anchor(top: topAnchor, left: leftAnchor, paddingTop: 18, paddingLeft: 18)
-        roomImageView.setDimensions(height: 52, width: 52)
-        roomImageView.layer.cornerCurve = .continuous
-        roomImageView.layer.masksToBounds = true
-        roomImageView.layer.cornerRadius = 22.1
-        roomImageView.layer.borderWidth = 0.5
-        roomImageView.layer.borderColor = UIColor.gray.cgColor
+        roomImageView.centerY(inView: container, leftAnchor: container.leftAnchor, paddingLeft: 18)
+        roomImageView.setDimensions(height: 50, width: 50)
         
         container.addSubview(roomName)
         roomName.centerY(inView: roomImageView, leftAnchor: roomImageView.rightAnchor, paddingLeft: 8)
         
         container.addSubview(rightArrowButton)
         rightArrowButton.centerY(inView: self)
-        rightArrowButton.anchor(top: topAnchor, right: rightAnchor, paddingRight: 18)
+        rightArrowButton.anchor(top: container.topAnchor, right: container.rightAnchor, paddingRight: 18)
         
         stackMembersView.addArrangedSubview(roomMembers)
         stackMembersView.addArrangedSubview(personImageView)
         stackMembersView.addArrangedSubview(slash)
         stackMembersView.addArrangedSubview(roomGroups)
         stackMembersView.addArrangedSubview(groupImageView)
-        stackMembersView.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(stackMembersView)
-        stackMembersView.anchor(bottom: bottomAnchor, right: rightAnchor, paddingBottom: 18, paddingRight: 38, height: 20)
+        stackMembersView.anchor(bottom: container.bottomAnchor, right: container.rightAnchor, paddingBottom: 18, paddingRight: 38, height: 20)
         
     }
     

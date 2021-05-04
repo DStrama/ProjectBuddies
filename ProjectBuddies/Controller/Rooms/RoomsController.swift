@@ -9,8 +9,11 @@ import UIKit
 
 private let reuseIdentifier = "RoomCell"
 
-class RoomsController: UITableViewController, UISearchControllerDelegate, UISearchResultsUpdating {
+class RoomsController: UITableViewController, UISearchControllerDelegate, UISearchResultsUpdating, UIPageViewControllerDelegate {
     // MARK: - Properties
+    
+    var user: User
+    var viewModel: ProfileHeaderViewModel?
     
     private var rooms = [Room]()
     private var filteredRooms = [Room]()
@@ -22,6 +25,40 @@ class RoomsController: UITableViewController, UISearchControllerDelegate, UISear
         sb.searchBar.placeholder = "Search room"
         return sb
     }()
+    
+    private let createButton: UIButton = {
+        let btn = UIButton.init(type: .system)
+        btn.setHeight(40)
+        btn.layer.cornerRadius = 20
+        btn.addTarget(self, action: #selector(createRoom), for: .touchUpInside)
+        btn.backgroundColor = K.Color.navyApp
+        btn.titleLabel!.font = K.Font.regularBold
+        btn.setTitleColor(K.Color.lighterCreme, for: .normal)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
+        btn.setTitle("Start a room", for: .normal)
+        return btn
+    }()
+    
+    private let profileImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.setDimensions(height: 30, width: 30)
+        iv.layer.cornerCurve = .continuous
+        iv.layer.masksToBounds = true
+        iv.layer.cornerRadius = 12.75
+        iv.layer.borderWidth = 0.5
+        iv.layer.borderColor = UIColor.gray.cgColor
+        return iv
+    }()
+    
+    init(user: User) {
+        self.user = user
+        super.init(style: .grouped)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Lifecycle
     
@@ -56,17 +93,31 @@ class RoomsController: UITableViewController, UISearchControllerDelegate, UISear
     
     private func setupNavigationBar() {
         let joinBarButtonItem = UIBarButtonItem(title: "Join", style: .plain, target: self, action: #selector(joinRoom))
-        let createBarButtonItem = UIBarButtonItem(title: "Create", style: .plain, target: self, action: #selector(createRoom))
-        navigationItem.rightBarButtonItem = createBarButtonItem
+        joinBarButtonItem.tintColor = K.Color.navyApp
         navigationItem.leftBarButtonItem = joinBarButtonItem
+
+        self.viewModel = ProfileHeaderViewModel(user: self.user)
+        profileImageView.sd_setImage(with: self.viewModel?.profileImageUrl)
+        let profileBarButtonItem = UIBarButtonItem.init(customView: profileImageView)
+        
+        navigationItem.rightBarButtonItem = profileBarButtonItem
+        
         navigationItem.title = "Rooms"
+        
         navigationController?.navigationBar.barTintColor = K.Color.lighterCreme
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
+        profileImageView.isUserInteractionEnabled = true
+        profileImageView.addGestureRecognizer(tapGestureRecognizer)
     }
     
     private func configureUI() {
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         tableView.refreshControl = refresher
+    
+        view.addSubview(createButton)
+        createButton.centerX(inView: view)
+        createButton.anchor(bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 30)
     }
     
     private func setUpSearchBar() {
@@ -83,8 +134,8 @@ class RoomsController: UITableViewController, UISearchControllerDelegate, UISear
     
     @objc func createRoom() {
         print("DEBUG: create room")
-        let controller = CreateRoomController()
-        controller.delegate = self
+        let controller = CreateRoomController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+        controller.delegateCreateRoom = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -98,6 +149,12 @@ class RoomsController: UITableViewController, UISearchControllerDelegate, UISear
     @objc func handleRefresh() {
         rooms.removeAll()
         fetchRooms()
+    }
+    
+    @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
+    {
+        let controller = ProfileController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
@@ -129,7 +186,7 @@ extension RoomsController {
     private func deleteAction(at indexPath: IndexPath) -> UIContextualAction {
         let action = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion) in
 
-            RoomService.updateAfterRemovingRoom(roomId: self.rooms[indexPath.row].id, owner: self.rooms[indexPath.row].owner)
+            RoomService.updateAfterRemovingRoom(room: self.rooms[indexPath.row])
             
             self.rooms.remove(at: indexPath.row)
             self.tableView.deleteRows(at: [indexPath], with: .automatic)
@@ -181,7 +238,6 @@ extension RoomsController {
         let text = searchController.searchBar.text!.lowercased()
         let filtered = rooms.filter({ $0.name.lowercased().contains(text)})
         filteredRooms = filtered
-        print(filtered)
          if(filtered.count == 0){
             isFiltered = false
          } else {

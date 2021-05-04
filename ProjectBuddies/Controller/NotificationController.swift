@@ -29,12 +29,15 @@ class NotificationController: UITableViewController {
     
     private func configureNavigationBar() {
         navigationItem.title = "Notifications"
+        navigationController?.navigationBar.barTintColor = K.Color.lighterCreme
     }
     
     private func configureTableView() {
-        view.backgroundColor = .white
+        view.backgroundColor = K.Color.lighterCreme
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.isUserInteractionEnabled = true
+        tableView.allowsSelection = false
         tableView.register(NotificationCell.self, forCellReuseIdentifier: notificationIdentifier)
     }
     
@@ -51,6 +54,8 @@ class NotificationController: UITableViewController {
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         tableView.refreshControl = refresher
     }
+    
+    // MARK: - Actions
     
     @objc func handleRefresh() {
         notifications.removeAll()
@@ -71,7 +76,58 @@ extension NotificationController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: notificationIdentifier, for: indexPath) as! NotificationCell
         cell.selectionStyle = .none
+        cell.delegateNotification = self
         cell.viewModel = NotificationViewModel(notification: notifications[indexPath.row])
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let footerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 50))
+        footerView.backgroundColor = .clear
+        return footerView
+    }
+}
+
+extension NotificationController: NotificationDelegate {
+    
+    func acceptedRequest(controller: NotificationCell) {
+        // notification id
+        guard let notificationId = controller.viewModel?.id else { return }
+        
+        //id of person who wants to join
+        guard let groupNewMember = controller.viewModel?.uid else { return }
+        
+        //id of group
+        guard let groupId = controller.viewModel?.groupId else { return }
+        
+        GroupService.appendMemberToGroup(groupId: groupId, memberId: groupNewMember) { error in
+            if let error = error {
+                print("DEBUG: Failed to add room \(error.localizedDescription)")
+                return
+            }
+            
+            NotificationService.deleteNotitfication(notificationId: notificationId) { error in
+                if let error = error {
+                    print("DEBUG: Failed to add room \(error.localizedDescription)")
+                    return
+                }
+                self.fetchNotifications()
+            }
+        }
+        
+        
+    }
+    
+    func declinedRequest(controller: NotificationCell) {
+        guard let notificationId = controller.viewModel?.id else { return }
+        
+        NotificationService.deleteNotitfication(notificationId: notificationId) { error in
+            if let error = error {
+                print("DEBUG: Failed to add room \(error.localizedDescription)")
+                return
+            }
+            self.fetchNotifications()
+        }
+        
     }
 }

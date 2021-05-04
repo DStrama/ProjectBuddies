@@ -25,7 +25,7 @@ struct Notification {
     var groupImageUrl: String?
     var groupName: String
     var userName: String
-    var profileImageUrl: String
+    var profileImageUrl: String?
     var roomId: String?
     var roomName: String?
     let timestamp: Timestamp
@@ -40,7 +40,7 @@ struct Notification {
         self.groupImageUrl = dictionary["groupImageUrl"] as? String ?? ""
         self.groupName = dictionary["groupName"] as? String ?? ""
         self.userName = dictionary["userName"] as? String ?? ""
-        self.profileImageUrl = dictionary["uerProfileImageUrl"] as? String ?? ""
+        self.profileImageUrl = dictionary["userProfileImageUrl"] as? String ?? ""
         self.roomName = dictionary["roomName"] as? String ?? ""
         self.roomId = dictionary["roomId"] as? String ?? ""
         self.type = NotificationType(rawValue: dictionary["type"] as? Int ?? 0) ?? .join

@@ -7,19 +7,27 @@
 
 import UIKit
 
+protocol NotificationDelegate: class {
+    func acceptedRequest(controller: NotificationCell)
+    func declinedRequest(controller: NotificationCell)
+}
+
 class NotificationCell: UITableViewCell {
     
     // MARK: - Properties
     
+    weak var delegateNotification: NotificationDelegate?
+    
     var viewModel: NotificationViewModel? {
-        didSet{
+        didSet {
             configure()
         }
     }
 
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.setDimensions(height: 40, width: 40)
+        iv.setDimensions(height: 50, width: 50)
+        iv.contentMode = .scaleAspectFill
         iv.layer.cornerCurve = .continuous
         iv.layer.masksToBounds = true
         iv.layer.cornerRadius = 17
@@ -43,7 +51,7 @@ class NotificationCell: UITableViewCell {
 
     private let acceptButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle( "Accept", for: .normal)
+        btn.setTitle( "Accept the request", for: .normal)
         btn.setTitleColor(K.Color.lighterCreme, for: .normal)
         btn.titleLabel?.font = K.Font.small
         btn.backgroundColor = K.Color.navyApp
@@ -55,7 +63,7 @@ class NotificationCell: UITableViewCell {
     
     private let declineButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle( "Decline", for: .normal)
+        btn.setTitle( "Ignore", for: .normal)
         btn.setTitleColor(K.Color.navyApp, for: .normal)
         btn.titleLabel?.font = K.Font.small
         btn.layer.borderWidth = 0.5
@@ -79,6 +87,7 @@ class NotificationCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        contentView.isUserInteractionEnabled = true
         setUpViewsAndConstraints()
     }
     
@@ -90,6 +99,8 @@ class NotificationCell: UITableViewCell {
     
     private func setUpViewsAndConstraints() {
         
+        acceptButton.addTarget(self, action: #selector(handleAcceptRequest) ,for: .touchUpInside)
+        declineButton.addTarget(self, action: #selector(handleDeclineRequest) ,for: .touchUpInside)
         stackView.addArrangedSubview(declineButton)
         stackView.addArrangedSubview(acceptButton)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -106,7 +117,7 @@ class NotificationCell: UITableViewCell {
 
         addSubview(stackView)
         stackView.centerX(inView: self)
-        stackView.anchor(top: messageLabel.bottomAnchor, bottom: bottomAnchor, paddingTop: 16, paddingBottom: 8)
+        stackView.anchor(top: profileImageView.bottomAnchor, bottom: bottomAnchor, paddingTop: 16, paddingBottom: 8)
     }
     
     private func configure() {
@@ -118,12 +129,12 @@ class NotificationCell: UITableViewCell {
     
     // MARK: - Actions
     
-    @objc private func handleAcceptRequest() {
-        
+    @objc private func handleAcceptRequest(_ sender: UIButton) {
+        delegateNotification?.acceptedRequest(controller: self)
     }
     
-    @objc private func handleDeclineRequest() {
-        
+    @objc private func handleDeclineRequest(_ sender: UIButton) {
+        delegateNotification?.declinedRequest(controller: self)
     }
     
 }

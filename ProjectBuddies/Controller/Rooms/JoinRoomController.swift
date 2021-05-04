@@ -17,12 +17,22 @@ class JoinRoomController: UIViewController {
     
     weak var delegate: JoinRoomDelegate?
     
+    let textLabel: UILabel = {
+        let l = UILabel()
+        l.textAlignment = .center
+        l.text = "Join room"
+        l.numberOfLines = 2
+        l.font = K.Font.header
+        l.textAlignment = .left
+        return l
+    }()
+    
     private lazy var keyTextField: InputTextView = {
         var tv = InputTextView()
-        tv.placeholderText = "Enter code.."
+        tv.placeholderText = "Enter code..."
         tv.font = K.Font.regular
         tv.delegate = self
-        tv.backgroundColor = K.Color.white
+        tv.backgroundColor = .white
         return tv
     }()
     
@@ -31,6 +41,24 @@ class JoinRoomController: UIViewController {
         l.textColor = K.Color.lightGray
         l.font = K.Font.small
         return l
+    }()
+    
+    private let joinButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle( "Join", for: .normal)
+        btn.setTitleColor(K.Color.lighterCreme, for: .normal)
+        btn.titleLabel?.font = K.Font.regular
+        btn.backgroundColor = K.Color.navyApp
+        btn.layer.cornerRadius = 20
+        btn.contentEdgeInsets = UIEdgeInsets(top: 8, left: 68, bottom: 8, right: 68)
+        btn.setHeight(40)
+        return btn
+    }()
+    
+    private let line: UIView = {
+        let v = UIView()
+        v.backgroundColor = K.Color.navyApp
+        return v
     }()
     
     // MARK: - Lifecycle
@@ -47,22 +75,33 @@ class JoinRoomController: UIViewController {
     
     private func setUpViewsAndConstraints() {
         characterCountLabel.text = "0/20"
+        joinButton.addTarget(self, action: #selector(joinTapped), for: .touchUpInside)
         
         view.backgroundColor = K.Color.lighterCreme
+        
+        view.addSubview(textLabel)
+        textLabel.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, paddingTop: 48, paddingLeft: 56)
 
         view.addSubview(keyTextField)
-        keyTextField.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 16, paddingLeft: 12, paddingRight: 12, height: 64)
+        keyTextField.anchor(top: textLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 32, paddingLeft: 56, paddingRight: 56, height: 40)
+        
+        view.addSubview(line)
+        line.anchor(top: keyTextField.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingLeft: 56, paddingRight: 56, height: 2)
         
         view.addSubview(characterCountLabel)
-        characterCountLabel.anchor(top: keyTextField.bottomAnchor, right: view.rightAnchor, paddingTop: 8, paddingRight: 12)
+        characterCountLabel.anchor(top: line.bottomAnchor, right: view.rightAnchor, paddingTop: 8, paddingRight: 56, height: 18)
+        
+        view.addSubview(joinButton)
+        joinButton.centerX(inView: view)
+        joinButton.anchor(top: characterCountLabel.bottomAnchor, paddingTop: 32)
+        
     }
     
     private func setupNavigationBar() {
-        let cancelBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelTapped))
-        let doneBarButtonItem = UIBarButtonItem(title: "Join", style: .plain, target: self, action: #selector(joinTapped))
-        navigationItem.title = "Join room"
-        navigationItem.rightBarButtonItem = doneBarButtonItem
-        navigationItem.leftBarButtonItem = cancelBarButtonItem
+        let image = UIImage(systemName: "chevron.left")
+        let backBarButtonItem = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(cancelTapped))
+        backBarButtonItem.tintColor = K.Color.navyApp
+        navigationItem.leftBarButtonItem = backBarButtonItem
     }
     
     private func checkMaxLength(_ textView: UITextView, maxLength: Int) {

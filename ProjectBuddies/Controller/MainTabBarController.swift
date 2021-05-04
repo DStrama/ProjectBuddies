@@ -12,7 +12,7 @@ class MainTabBarController: UITabBarController {
     
     // MARK: - Properties
     
-    private var user: User? {
+    var user: User? {
         didSet {
             guard let user = user else { return }
             configureViewControlllers(withUser: user)
@@ -38,7 +38,7 @@ class MainTabBarController: UITabBarController {
     private func checkIfUserIsLoggedIn() {
         if Auth.auth().currentUser == nil {
             DispatchQueue.main.async {
-                let controller = LoginController()
+                let controller = RegistrationController()
                 controller.delegate = self
                 let nav = UINavigationController(rootViewController: controller)
                 nav.modalPresentationStyle = .fullScreen
@@ -52,15 +52,13 @@ class MainTabBarController: UITabBarController {
     private func configureViewControlllers(withUser user: User) {
         view.backgroundColor = .white
         
-        let rooms = templatNavigationController(unselectedImage: UIImage(systemName: "folder")!, selectedImage: UIImage(systemName: "folder.fill")!, rootViewController: RoomsController(), title: "Rooms")
+        let rooms = templatNavigationController(unselectedImage: UIImage(systemName: "folder")!, selectedImage: UIImage(systemName: "folder.fill")!, rootViewController: RoomsController(user: user), title: "Rooms")
         
-        let messages = templatNavigationController(unselectedImage: UIImage(systemName: "message")!, selectedImage: UIImage(systemName: "message.fill")!, rootViewController: MessagesController(), title: "Messages")
+        let messages = templatNavigationController(unselectedImage: UIImage(systemName: "message")!, selectedImage: UIImage(systemName: "message.fill")!, rootViewController: ConversationsController(), title: "Messages")
         
         let notifications = templatNavigationController(unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationController(), title: "Notification")
         
-        let profile = templatNavigationController(unselectedImage: UIImage(systemName: "person")!, selectedImage: UIImage(systemName: "person.fill")!, rootViewController: ProfileController(user: user), title: "Profile")
-        
-        viewControllers = [rooms, messages, notifications, profile]
+        viewControllers = [rooms, messages, notifications]
         
     }
      

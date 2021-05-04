@@ -2,17 +2,30 @@
 # platform :ios, '9.0'
 
 target 'ProjectBuddies' do
-  # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  # Pods for ProjectBuddies
-	pod 'Firebase/Auth'
-	pod 'Firebase/Firestore'
-	pod 'Firebase/Storage'
-	pod 'FirebaseFirestoreSwift'
-	pod 'MultilineTextField'
-	pod 'SDWebImage'
-	pod 'JGProgressHUD'
+# Firebase
+pod 'Firebase/Auth'
+pod 'Firebase/CoreOnly'
+pod 'Firebase/Firestore'
+pod 'Firebase/Storage'
+pod 'Firebase/Database'
+pod 'FirebaseFirestoreSwift'
+
+# Facebook
+pod 'FBSDKLoginKit'
+pod 'FBSDKCoreKit'
+pod 'Bolts'
+pod 'FBSDKShareKit'
+
+# Google Sign IN
+pod 'GoogleSignIn'
+
+pod 'MultilineTextField'
+pod 'SDWebImage'
+pod 'JGProgressHUD'
+pod 'TOCropViewController'
+pod 'MessageKit'
 
   target 'ProjectBuddiesTests' do
     inherit! :search_paths

@@ -44,6 +44,7 @@ class MemberCell: UICollectionViewCell {
     // MARK: - Helpers
     
     private func setUpViewsAndConstraints() {
+        memberImageView.backgroundColor = .black
         
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
         memberImageView.isUserInteractionEnabled = true

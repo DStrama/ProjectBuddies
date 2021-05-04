@@ -15,6 +15,10 @@ struct NotificationViewModel {
         return URL(string: notification.groupImageUrl ?? "")
     }
     
+    var groupId: String? {
+        return notification.groupId
+    }
+    
     var profileImageUrl: URL? {
         return URL(string: notification.profileImageUrl ?? "")
     }

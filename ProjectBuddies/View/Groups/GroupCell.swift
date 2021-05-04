@@ -49,7 +49,7 @@ class GroupCell: UICollectionViewCell {
         let l = UILabel()
         l.textAlignment = .justified
         l.font = UIFont.preferredFont(forTextStyle: .subheadline)
-        l.numberOfLines = 0
+        l.numberOfLines = 3
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
     }()
@@ -58,6 +58,7 @@ class GroupCell: UICollectionViewCell {
         let l = UILabel()
         l.numberOfLines = 0
         l.textColor = K.Color.gray
+        l.font = K.Font.small
         return l
     }()
     
@@ -96,7 +97,7 @@ class GroupCell: UICollectionViewCell {
         container.fillSuperview()
 
         container.addSubview(groupName)
-        groupName.anchor(top: container.topAnchor, left: container.leftAnchor, right: container.rightAnchor, paddingTop: 10, paddingLeft: 18, paddingRight: 18)
+        groupName.anchor(top: container.topAnchor, left: container.leftAnchor, right: container.rightAnchor, paddingTop: 18, paddingLeft: 18, paddingRight: 18)
         
         container.addSubview(groupDescription)
         groupDescription.anchor(top: groupName.bottomAnchor, left: container.leftAnchor, right: container.rightAnchor, paddingTop: 10, paddingLeft: 18, paddingRight: 18)
@@ -108,16 +109,14 @@ class GroupCell: UICollectionViewCell {
         stackMembersView.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(stackMembersView)
         stackMembersView.centerX(inView: groupDescription)
-        stackMembersView.anchor(top: groupDescription.bottomAnchor, bottom: container.bottomAnchor, paddingTop: 10, paddingBottom: 10)
-        
+        stackMembersView.anchor(top: groupDescription.bottomAnchor, bottom: container.bottomAnchor, paddingTop: 10, paddingBottom: 18)
     }
     
     private func configure() {
         guard let viewModel = viewModel else { return }
         groupImageView.sd_setImage(with: viewModel.imageUrl!)
         groupName.text = viewModel.name
-        groupMembers.text = "\(String(viewModel.members!)) " + "/" + "\(String(viewModel.targetNumberOfPeople!))"
+        groupMembers.text = "\(String(viewModel.members!))" + " / " + "\(String(viewModel.targetNumberOfPeople!))"
         groupDescription.text = String(viewModel.description!)
     }
-    
 }

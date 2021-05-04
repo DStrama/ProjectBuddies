@@ -7,124 +7,180 @@
 
 import UIKit
 
-protocol AuthenticationDelegate: class {
+protocol AuthenticationDelegate: AnyObject {
     func anthenticationDidComplete()
 }
 
 class LoginController: UIViewController {
     // MARK: - Properties
-    
+
     weak var delegate: AuthenticationDelegate?
-    
-    private let iconImage: UIImageView = {
-        let iv = UIImageView(image: #imageLiteral(resourceName: "logo"))
-        iv.contentMode = .scaleToFill
-        return iv
+
+    let loginLabel: UILabel = {
+        let l = UILabel()
+        l.text = "Log in to ProjectBuddies"
+        l.font = K.Font.extraLargeBold
+        l.textAlignment = .center
+        return l
     }()
-    
-    private let emailTextField: CustomTextField = {
-        let tf = CustomTextField(placeholder: "Email", txtColor: K.Color.black, bgColor: K.Color.lightBlack)
-        return tf
+
+    let descriptionLabel: UILabel = {
+        let l = UILabel()
+        l.text = "Manage your account, create room,\nfind group or members to your group."
+        l.numberOfLines = 0
+        l.font = K.Font.regular
+        l.textColor = K.Color.gray
+        l.textAlignment = .center
+        return l
     }()
-    
-    private let passwordTextField: CustomTextField = {
-        let tf = CustomTextField(placeholder: "Password", txtColor: K.Color.black, bgColor: K.Color.lightBlack)
-        tf.isSecureTextEntry = true
-        return tf
-    }()
-    
-    private let loginButton: UIButton = {
+
+    private let emailButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setTitle("Log in", for: .normal)
-        btn.setTitleColor(.white, for: .normal)
-        btn.backgroundColor = K.Color.blue
+        btn.setTitle("Use email / phone", for: .normal)
+        btn.titleLabel?.font = K.Font.smallBold
+        btn.setTitleColor(.black, for: .normal)
+        btn.backgroundColor = K.Color.white
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = K.Color.lightGray.cgColor
+        let icon = UIImage(systemName: "person")
+        btn.tintColor = K.Color.black
+        btn.setImage(icon, for: .normal)
+        btn.imageView?.contentMode = .scaleAspectFit
+        btn.imageEdgeInsets = UIEdgeInsets(top: 0, left: -150, bottom: 0, right: 0)
         btn.setHeight(50)
         return btn
     }()
-    
+
+    private let facebookButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Continue with Facebook", for: .normal)
+        btn.titleLabel?.font = K.Font.smallBold
+        btn.setTitleColor(.black, for: .normal)
+        btn.backgroundColor = K.Color.white
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = K.Color.lightGray.cgColor
+        btn.setHeight(50)
+        return btn
+    }()
+
+    private let appleButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Continue with Apple", for: .normal)
+        btn.titleLabel?.font = K.Font.smallBold
+        btn.setTitleColor(.black, for: .normal)
+        btn.backgroundColor = K.Color.white
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = K.Color.black.cgColor
+        let icon = UIImage(systemName: "applelogo")
+        btn.tintColor = K.Color.black
+        btn.setImage(icon, for: .normal)
+        btn.imageView?.contentMode = .scaleAspectFit
+        btn.imageEdgeInsets = UIEdgeInsets(top: 0, left: -150, bottom: 0, right: 0)
+        btn.setHeight(50)
+        return btn
+    }()
+
+    private let googleButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Continue with Google", for: .normal)
+        btn.titleLabel?.font = K.Font.smallBold
+        btn.setTitleColor(.black, for: .normal)
+        btn.backgroundColor = K.Color.white
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = K.Color.lightGray.cgColor
+        btn.setHeight(50)
+        return btn
+    }()
+
     private let forgotPassword: UIButton = {
         let btn = UIButton(type: .system)
-        
+
         let atts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.black, .font: K.Font.regular!]
         let boldAtts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.black, .font: K.Font.regularBold!]
-        
+
         let attributedTitle = NSMutableAttributedString(string: "Forgot your password? ", attributes: atts)
         attributedTitle.append(NSMutableAttributedString(string: "Get help signing in.", attributes: boldAtts))
-        
+        btn.addTarget(self, action: #selector(handleForgotPassword), for: .touchUpInside)
         btn.setAttributedTitle(attributedTitle, for: .normal)
         return btn
     }()
-    
+
     private let dontHaveAccountButton: UIButton = {
         let btn = UIButton(type: .system)
-        
+
         let atts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.black, .font: K.Font.regular!]
-        let boldAtts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.black, .font: K.Font.regularBold!]
-        
+        let boldAtts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.red, .font: K.Font.regularBold!]
+
         let attributedTitle = NSMutableAttributedString(string: "Don't have an acconut? ", attributes: atts)
         attributedTitle.append(NSMutableAttributedString(string: "Sign Up", attributes: boldAtts))
-        
+
         btn.setAttributedTitle(attributedTitle, for: .normal)
         btn.addTarget(self, action: #selector(handleShowSignUp), for: .touchUpInside)
+        btn.setHeight(80)
         return btn
     }()
-    
+
     private let registrationProblem: UITextField = {
         let tf = UITextField()
         return tf
     }()
 
     // MARK: - Lifecycle
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
     }
-    
+
     // MARK: - Helpers
-    
+
     private func configureUI() {
-        loginButton.addTarget(self, action: #selector(handleLogIn), for: .touchUpInside)
-        
+        emailButton.addTarget(self, action: #selector(handleEmailLogin), for: .touchUpInside)
+
         view.backgroundColor = K.Color.white
         navigationController?.navigationBar.isHidden = true
 
-        view.addSubview(iconImage)
-        iconImage.centerX(inView: view)
-        iconImage.setDimensions(height: 160, width: 80)
-        iconImage.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 10)
-        
-        let stack = UIStackView(arrangedSubviews: [emailTextField, passwordTextField, loginButton, forgotPassword])
+        view.addSubview(loginLabel)
+        loginLabel.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 100, paddingLeft: 24, paddingRight: 24)
+
+        view.addSubview(descriptionLabel)
+        descriptionLabel.anchor(top: loginLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 12, paddingLeft: 24, paddingRight: 24)
+
+        let stack = UIStackView(arrangedSubviews: [emailButton, facebookButton, appleButton, googleButton])
         stack.axis = .vertical
-        stack.spacing = 20
-        
+        stack.spacing = 10
+
         view.addSubview(stack)
-        stack.anchor(top: iconImage.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 32, paddingLeft: 32, paddingRight: 32)
-        
+        stack.anchor(top: descriptionLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 24, paddingLeft: 24, paddingRight: 24)
+
+        dontHaveAccountButton.backgroundColor = K.Color.veryLightGray
         view.addSubview(dontHaveAccountButton)
         dontHaveAccountButton.centerX(inView: view)
-        dontHaveAccountButton.anchor(bottom: view.safeAreaLayoutGuide.bottomAnchor)
-        
+        dontHaveAccountButton.anchor(left: view.leftAnchor, bottom: view.bottomAnchor, right: view.rightAnchor)
+
     }
-    
+
     // MARK: - Actions
-    
+
     @objc func handleShowSignUp() {
-        let controller = RegistrationController()
-        controller.delegate = delegate
-        navigationController?.pushViewController(controller, animated: true)
+        self.navigationController?.dismiss(animated: true, completion: nil)
     }
-    
-    @objc func handleLogIn() {
-        guard let email = emailTextField.text else { return }
-        guard let password = passwordTextField.text else { return }
-        AuthService.logUserIn(email: email, password: password) { (result, error)  in
-            if let error = error {
-                print("DEBUG: Failed to log in user \(error.localizedDescription)")
-                return
-            }
-            
-            self.delegate?.anthenticationDidComplete()
-        }
-     }
+
+    @objc func handleEmailLogin() {
+        let controller = LoginWithEmailController()
+        controller.delegateFinish = self
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+    }
+
+    @objc func handleForgotPassword() {
+
+    }
+}
+
+extension LoginController: LoginWithEmailControllerDelegate {
+    func didFinishLogin() {
+        self.delegate?.anthenticationDidComplete()
+    }
 }

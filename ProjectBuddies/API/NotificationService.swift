@@ -42,4 +42,18 @@ struct NotificationService {
             completion(notifications)
         }
     }
+    
+    static func deleteNotitfication(notificationId: String, completion:@escaping(Error?) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        K.FStore.COLLECTION_NOTIFICATIONS.document(uid).collection("user-notification").document(notificationId).delete { error in
+            if let error = error {
+                print("Error removing document: \(error)")
+                return
+            } else {
+                print("Document successfully removed!")
+                completion(nil)
+            }
+        }
+    }
+    
 }

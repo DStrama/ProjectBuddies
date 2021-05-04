@@ -31,8 +31,10 @@ class SettingCell: UITableViewCell {
     // MARK: - Helpers
     
     private func setUpViewsAndConstraints() {
+        backgroundColor = .clear
         let spacer = UIView()
-        spacer.setDimensions(height: 50, width: 12)
+        spacer.backgroundColor = .clear
+        spacer.setDimensions(height: 50, width: 28)
         addSubview(spacer)
         
         spacer.anchor(top: topAnchor, left: leftAnchor)

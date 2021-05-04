@@ -13,7 +13,7 @@ private let memberReuseIdentifier = "MemberCell"
 fileprivate let MEMBERS_SECTION: [Int] = [0]
 fileprivate let GROUPS_SECTION: [Int] = [1]
 
-class GroupController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource  {
+class GroupController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UIPageViewControllerDelegate  {
     
     // MARK: - Properties
     private var groups = [Group]()
@@ -38,6 +38,8 @@ class GroupController: UIViewController, UICollectionViewDelegate, UICollectionV
         fetchGroups()
         fetchRoomMembers()
         configureCollectionView()
+        setupLongGestureRecognizerOnCollection()
+        setupRefresh()
     }
 
     // MARK: - API
@@ -62,11 +64,20 @@ class GroupController: UIViewController, UICollectionViewDelegate, UICollectionV
     
     private func setupNavigationBar() {
         let add = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(createGroup))
-        navigationItem.rightBarButtonItem = add
+        let imageShare = UIImage(systemName: "square.and.arrow.up")
+        let shareKey = UIBarButtonItem(image: imageShare, style: .plain, target: self, action: #selector(shareRoomKey))
+        add.tintColor = K.Color.navyApp
+        shareKey.tintColor = K.Color.navyApp
+        navigationItem.setRightBarButtonItems([add, shareKey], animated: true)
         navigationItem.title = room!.name
+        
+        let imageBack = UIImage(systemName: "chevron.left")
+        let backBarButtonItem = UIBarButtonItem(image: imageBack, style: .plain, target: self, action: #selector(cancelTapped))
+        backBarButtonItem.tintColor = K.Color.navyApp
+        navigationItem.leftBarButtonItem = backBarButtonItem
     }
     
-    private func configureUI() {
+    private func setupRefresh() {
         let refresher = UIRefreshControl()
         refresher.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         collectionView.refreshControl = refresher
@@ -91,23 +102,73 @@ class GroupController: UIViewController, UICollectionViewDelegate, UICollectionV
         
     }
     
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 2
+    private func setupLongGestureRecognizerOnCollection() {
+        let longPressedGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(gestureRecognizer:)))
+        longPressedGesture.minimumPressDuration = 0.5
+        longPressedGesture.delegate = self
+        longPressedGesture.delaysTouchesBegan = true
+        collectionView.addGestureRecognizer(longPressedGesture)
+    }
+    
+    private func setUpActionSheet(indexPath: Int) {
+        let alert = UIAlertController(title: "Options", message: nil, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Delete", style: .default, handler: { (action: UIAlertAction) in
+            self.handleDelateGroup(indexPath: indexPath)
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    private func handleDelateGroup(indexPath: Int) {
+        GroupService.deleteGroup(group: groups[indexPath]) { error in
+            if let error = error {
+                print("Error removing document: \(error)")
+                return
+            } else {
+                print("Document successfully removed!")
+                self.groups.remove(at: indexPath)
+                self.collectionView.reloadData()
+            }
+        }
     }
     
     // MARK: - Actions
     
     @objc private func createGroup() {
         print("DEBUG: ceate group")
-        let controller = CreateGroupController()
+        let controller = CreateGroupController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
         controller.roomId = room!.id
-        controller.delegate = self
+        controller.delegateCreateGroup = self
+        controller.users = users
         navigationController?.pushViewController(controller, animated: true)
     }
     
+    @objc private func shareRoomKey() {
+        showInputDialog(title: "Get a key to the room", actionTitle: "Copy", inputText: room?.id)
+    }
+    
     @objc func handleRefresh() {
-        groups.removeAll()
         fetchGroups()
+        fetchRoomMembers()
+    }
+    
+    @objc func handleLongPress(gestureRecognizer: UILongPressGestureRecognizer) {
+        if (gestureRecognizer.state != .began) {
+            return
+        }
+
+        let p = gestureRecognizer.location(in: collectionView)
+
+        if let indexPath = collectionView.indexPathForItem(at: p) {
+            
+            if indexPath.section == 1 {
+                setUpActionSheet(indexPath: indexPath.row)
+            }
+        }
+    }
+    
+    @objc func cancelTapped() {
+        self.navigationController?.popViewController(animated: true)
     }
 }
 
@@ -121,14 +182,27 @@ extension GroupController: CreateGroupDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let controller = GroupDetailController(group: groups[indexPath.row])
-        navigationController?.pushViewController(controller, animated: true)
+        let section = indexPath.section
+        
+        if MEMBERS_SECTION.contains(section) {
+            let controller = ProfileController(user: users[indexPath.row])
+            navigationController?.pushViewController(controller, animated: true)
+        }
+        if GROUPS_SECTION.contains(section) {
+            let controller = GroupDetailController(group: groups[indexPath.row])
+            controller.room = room!
+            navigationController?.pushViewController(controller, animated: true)
+        }
     }
 }
 
 // MARK: - UICollectionViewDataSource
 
 extension GroupController {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2
+    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if MEMBERS_SECTION.contains(section) {
@@ -154,8 +228,6 @@ extension GroupController {
         }
         return UICollectionViewCell()
     }
-    
-
 }
 
 // MARK: - MemberDelegate
@@ -164,5 +236,46 @@ extension GroupController: MemberDelegate {
     func memberTapped(_ user: User) {
         let controller = ProfileController(user: user)
         navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+// MARK: - AlertInputDialog
+
+extension UIViewController {
+    
+    func showInputDialog(title:String? = nil,
+                         subtitle:String? = nil,
+                         actionTitle:String? = "Add",
+                         cancelTitle:String? = "Cancel",
+                         inputText:String? = nil,
+                         inputKeyboardType:UIKeyboardType = UIKeyboardType.default,
+                         cancelHandler: ((UIAlertAction) -> Swift.Void)? = nil,
+                         actionHandler: ((_ text: String?) -> Void)? = nil) {
+        
+        let alert = UIAlertController(title: title, message: subtitle, preferredStyle: .alert)
+        
+        alert.addTextField { (textField :UITextField) in
+            textField.text = inputText
+            textField.keyboardType = inputKeyboardType
+            textField.selectAll(self)
+            self.copyToClipBoard(textToCopy: inputText!)
+        }
+        alert.addAction(UIAlertAction(title: actionTitle, style: .default, handler: { (action:UIAlertAction) in
+            guard let textField =  alert.textFields?.first else {
+                actionHandler?(nil)
+                return
+            }
+            actionHandler?(textField.text)
+        }))
+        alert.addAction(UIAlertAction(title: cancelTitle, style: .cancel, handler: cancelHandler))
+
+        self.present(alert, animated: true) {
+            alert.textFields?.first?.selectAll(nil)
+        }
+    }
+    
+    private func copyToClipBoard(textToCopy: String) {
+        let pasteboard = UIPasteboard.general
+        pasteboard.string = textToCopy
     }
 }
