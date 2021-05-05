@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol ProjectEditDelegate: class {
+protocol ProjectEditDelegate: AnyObject {
     func projectEdit(controller: EditProfileProjectController)
 }
 
@@ -71,14 +71,7 @@ class EditProfileProjectController: UIPageViewController  {
         self.pageControl.numberOfPages = self.pages.count
         self.pageControl.currentPage = initialPage
         
-//        removeSwipeGesture()
-        
-        self.view.addSubview(self.pageControl)
-        self.pageControl.translatesAutoresizingMaskIntoConstraints = false
-        self.pageControl.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -5).isActive = true
-        self.pageControl.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -20).isActive = true
-        self.pageControl.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        self.pageControl.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        removeSwipeGesture()
         
         guard let title = projectName else { return }
         page1.keyTextField.text = title
@@ -203,139 +196,3 @@ extension EditProfileProjectController: EditProfileProjectTechnologiesDelegate {
         self.saveTapped()
     }
 }
-
-
-//protocol ProjectEditDelegate: class {
-//    func projectEdit(controller: EditProfileProjectController)
-//}
-//
-//class EditProfileProjectController: UIViewController {
-//
-//    // MARK: - Properties
-//
-//    var section = 0
-//
-//    var projectEditDelegate: ProjectEditDelegate?
-//
-//    var operationType: String = String()
-//
-//    var documentId: String = String()
-//
-//    private var titleLabel: CustomLabel = {
-//        var l = CustomLabel(fontType: K.Font.regular!)
-//        l.text = "Title"
-//        return l
-//    }()
-//
-//    private var titleTextField: UITextField = {
-//        var tf = CustomTextField(placeholder: "Ex: Health tracker", txtColor: K.Color.black, bgColor: K.Color.clear)
-//        return tf
-//    }()
-//
-//    private var descriptionLabel: CustomLabel = {
-//        var l = CustomLabel(fontType: K.Font.regular!)
-//        l.text = "Description"
-//        return l
-//    }()
-//
-//    private var descriptionTextField: UITextField = {
-//        var tf = CustomTextField(placeholder: "", txtColor: K.Color.black, bgColor: K.Color.clear)
-//        return tf
-//    }()
-//
-//    private var technologiesLabel: CustomLabel = {
-//        var l = CustomLabel(fontType: K.Font.regular!)
-//        l.text = "Technologies"
-//        return l
-//    }()
-//
-//    private var technologiesTextField: UITextField = {
-//        var tf = CustomTextField(placeholder: "Ex: Swift, Firebase", txtColor: K.Color.black, bgColor: K.Color.clear)
-//        return tf
-//    }()
-//
-//    // MARK: - Lifecycle
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        setupNavigationBar()
-//        setUpViewsAndConstraints()
-//    }
-//
-//    // MARK: - Helpers
-//
-//    private func setupNavigationBar() {
-//        let image = UIImage(systemName: "chevron.left")
-//        image?.withTintColor(K.Color.black)
-//        let backBarButtonItem = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(cancelTapped))
-//        navigationItem.leftBarButtonItem = backBarButtonItem
-//
-//        let saveBarButtonItem = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(saveTapped))
-//        navigationItem.rightBarButtonItem = saveBarButtonItem
-//    }
-//
-//    private func setUpViewsAndConstraints() {
-//        view.backgroundColor = K.Color.white
-//
-//        view.addSubview(titleLabel)
-//        titleLabel.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 12, paddingLeft: 12, paddingRight: 12)
-//
-//        view.addSubview(titleTextField)
-//        titleTextField.anchor(top: titleLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 12, paddingLeft: 12, paddingRight: 12)
-//
-//        view.addSubview(descriptionLabel)
-//        descriptionLabel.anchor(top: titleTextField.bottomAnchor, left: view.leftAnchor, paddingTop: 12, paddingLeft: 12, paddingRight: 12)
-//
-//        view.addSubview(descriptionTextField)
-//        descriptionTextField.anchor(top: descriptionLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 12, paddingLeft: 12, paddingRight: 12)
-//
-//        view.addSubview(technologiesLabel)
-//        technologiesLabel.anchor(top: descriptionTextField.bottomAnchor, left: view.leftAnchor, paddingTop: 12, paddingLeft: 12, paddingRight: 12)
-//
-//        view.addSubview(technologiesTextField)
-//        technologiesTextField.anchor(top: technologiesLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 12, paddingLeft: 12, paddingRight: 12)
-//
-//    }
-//
-//    func setUpProperties(title: String, description: String, technologies: String) {
-//        titleTextField.text = title
-//        descriptionTextField.text = description
-//        technologiesTextField.text = technologies
-//    }
-//
-//    // MARK: - Actions
-//
-//    @objc func cancelTapped() {
-//        self.navigationController?.popViewController(animated: true)
-//    }
-//
-//    @objc func saveTapped() {
-//        guard let title = titleTextField.text else { return }
-//        guard let description = descriptionTextField.text else { return }
-//        guard let technologies = technologiesTextField.text else { return }
-//
-//        if (operationType == "add") {
-//            showLoader(true)
-//            ProjectService.uploadProject(title: title, description: description, technologies: technologies) { error in
-//                self.showLoader(false)
-//                if let error = error {
-//                    print("Error adding project: \(error.localizedDescription)")
-//                    return
-//                }
-//                self.projectEditDelegate?.projectEdit(controller: self)
-//            }
-//        } else {
-//            showLoader(true)
-//            print(documentId)
-//            ProjectService.updateProject(id: documentId , title: title, description: description, technologies: technologies) { error in
-//                self.showLoader(false)
-//                if let error = error {
-//                    print("Error adding experience: \(error.localizedDescription)")
-//                    return
-//                }
-//                self.projectEditDelegate?.projectEdit(controller: self)
-//            }
-//        }
-//    }
-//
-//}

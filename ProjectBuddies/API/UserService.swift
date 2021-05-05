@@ -80,4 +80,32 @@ struct UserService {
             }
         }
     }
+    
+    static func updateUserFiledsAfterOnbording(name: String, photo: UIImage, bio: String, completion: @escaping(Error?) -> Void) {
+        UserService.updateUser(field: "fullname", value: name) { error in
+            if let error = error {
+                print("Error updated document: \(error)")
+            } else {
+                print("Document successfully updated!")
+                completion(nil)
+            }
+        }
+        UserService.updateUser(field: "aboutme", value: bio) { error in
+            if let error = error {
+                print("Error updated document: \(error)")
+            } else {
+                print("Document successfully updated!")
+                completion(nil)
+            }
+        }
+
+        UserService.updateUserImage(image: photo) { img, error in
+            if let error = error {
+                print("Error updated document: \(error)")
+            } else {
+                print("Document successfully updated!")
+                completion(nil)
+            }
+        }
+    }
 }

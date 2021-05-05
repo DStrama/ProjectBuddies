@@ -86,22 +86,7 @@ class CreateGroupController: UIPageViewController {
         self.pageControl.numberOfPages = self.pages.count
         self.pageControl.currentPage = initialPage
         
-//        removeSwipeGesture()
-        
-        self.view.addSubview(self.pageControl)
-        self.pageControl.translatesAutoresizingMaskIntoConstraints = false
-        self.pageControl.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -5).isActive = true
-        self.pageControl.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -20).isActive = true
-        self.pageControl.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        self.pageControl.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-    }
-    
-    private func removeSwipeGesture(){
-        for view in self.view.subviews {
-            if let subView = view as? UIScrollView {
-                subView.isScrollEnabled = false
-            }
-        }
+        removeSwipeGesture()
     }
 
     private func saveGroup() {
@@ -215,8 +200,7 @@ extension CreateGroupController: CreateGroupTargetMembersDelegate {
 
 extension CreateGroupController: CreateGroupMembersDelegate {
     func continueNextPage(members: [User], controller: CreateGroupMembersSelectionController) {
-        self.groupMembers = controller.members
-        print(controller.members)
+        self.groupMembers = members
         self.goToNextPage()
     }
 }

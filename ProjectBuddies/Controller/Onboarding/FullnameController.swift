@@ -1,26 +1,26 @@
 //
-//  EditProfileProjectDescriptionController.swift
+//  FullnameView.swift
 //  ProjectBuddies
 //
-//  Created by Dominik Strama on 23/04/2021.
+//  Created by Dominik Strama on 18/04/2021.
 //
 
 import UIKit
 
-protocol EditProfileProjectDescriptionDelegate: AnyObject {
-    func continueNextPage(controller: EditProfileProjectDescriptionController)
+protocol FullnameContinueDelegate: class {
+    func continueNextPage(controller: FullnameController)
 }
 
-class EditProfileProjectDescriptionController: UIViewController {
+class FullnameController: UIViewController {
     
     // MARK: - Properties
     
-    weak var delegate: EditProfileProjectDescriptionDelegate?
+    weak var delegate: FullnameContinueDelegate?
     
     let fistNameLabel: UILabel = {
         let l = UILabel()
         l.textAlignment = .center
-        l.text = "The Project \ndescription is"
+        l.text = "My full \nname is"
         l.numberOfLines = 2
         l.font = K.Font.header
         l.textAlignment = .left
@@ -29,7 +29,7 @@ class EditProfileProjectDescriptionController: UIViewController {
     
     lazy var keyTextField: InputTextView = {
         var tv = InputTextView()
-        tv.placeholderText = "Enter description..."
+        tv.placeholderText = "Enter name.."
         tv.font = K.Font.regular
         tv.delegate = self
         tv.backgroundColor = K.Color.white
@@ -55,14 +55,8 @@ class EditProfileProjectDescriptionController: UIViewController {
         return l
     }()
     
-    private let line: UIView = {
-        let v = UIView()
-        v.backgroundColor = K.Color.navyApp
-        return v
-    }()
-    
     // MARK: - Lifecycle
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpViewsAndConstraints()
@@ -74,7 +68,7 @@ class EditProfileProjectDescriptionController: UIViewController {
     // MARK: - Helpers
 
     private func setUpViewsAndConstraints() {
-        characterCountLabel.text = "0/300"
+        characterCountLabel.text = "0/35"
         continueButton.addTarget(self, action: #selector(continueOnBoarding), for: .touchUpInside)
         view.backgroundColor = K.Color.lighterCreme
         
@@ -82,13 +76,10 @@ class EditProfileProjectDescriptionController: UIViewController {
         fistNameLabel.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, paddingTop: 48, paddingLeft: 56)
 
         view.addSubview(keyTextField)
-        keyTextField.anchor(top: fistNameLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 32, paddingLeft: 56, paddingRight: 56, height: 150)
-        
-        view.addSubview(line)
-        line.anchor(top: keyTextField.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingLeft: 56, paddingRight: 56, height: 2)
+        keyTextField.anchor(top: fistNameLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 32, paddingLeft: 56, paddingRight: 56, height: 40)
         
         view.addSubview(characterCountLabel)
-        characterCountLabel.anchor(top: line.bottomAnchor, right: view.rightAnchor, paddingTop: 8, paddingRight: 56, height: 18)
+        characterCountLabel.anchor(top: keyTextField.bottomAnchor, right: view.rightAnchor, paddingTop: 8, paddingRight: 56, height: 18)
         
         view.addSubview(continueButton)
         continueButton.centerX(inView: view)
@@ -115,14 +106,12 @@ class EditProfileProjectDescriptionController: UIViewController {
     
 }
 
-// MARK: - UITextFieldDelegate
-
-extension EditProfileProjectDescriptionController: UITextViewDelegate {
+extension FullnameController: UITextViewDelegate {
     
     func textViewDidChange(_ textView: UITextView) {
-        checkMaxLength(textView, maxLength: 300)
+        checkMaxLength(textView, maxLength: 35)
         let count = textView.text.count
-        characterCountLabel.text = "\(count)/300"
+        characterCountLabel.text = "\(count)/35"
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
@@ -132,4 +121,3 @@ extension EditProfileProjectDescriptionController: UITextViewDelegate {
         return true
     }
 }
-

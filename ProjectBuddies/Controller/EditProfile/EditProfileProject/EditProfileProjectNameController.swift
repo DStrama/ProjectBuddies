@@ -91,8 +91,8 @@ class EditProfileProjectNameController: UIViewController {
         characterCountLabel.anchor(top: line.bottomAnchor, right: view.rightAnchor, paddingTop: 8, paddingRight: 56, height: 18)
         
         view.addSubview(continueButton)
-        continueButton.anchor(bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 48)
         continueButton.centerX(inView: view)
+        continueButton.anchor(top: characterCountLabel.bottomAnchor, paddingTop: 32)
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
         view.addGestureRecognizer(tap)

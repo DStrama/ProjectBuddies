@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol CreateGroupMembersSelectionDelegate: class {
+protocol CreateGroupMembersSelectionDelegate: AnyObject {
     func controllerDidFinishUploadingMembers(members: [User], controller: CreateGroupMembersSelectionController)
 }
 
@@ -28,7 +28,7 @@ class CreateGroupMembersSelectionController: UIViewController, UISearchControlle
     
     var arrayUsers = [ArrayUser]()
     
-    var members =  [User]() {
+    var members = [User]() {
         didSet{
             for (index, user) in members.enumerated() {
                 arrayUsers.append(ArrayUser(user: user, index: index, selected: false))
@@ -108,7 +108,7 @@ class CreateGroupMembersSelectionController: UIViewController, UISearchControlle
                 selectedMembers.append(userObject.user)
             }
         }
-        
+
         if selectedMembers.isEmpty {
             return
         } else {

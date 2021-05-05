@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol EditTextDelegate: class {
+protocol EditTextDelegate: AnyObject {
     func exitTextCell(text: String, header: String)
 }
 
@@ -72,7 +72,7 @@ class ProfileEditTextCell: UITableViewCell {
         editButton.anchor(top: container.topAnchor, right: container.rightAnchor, paddingTop: 8,  paddingRight: 8)
         
         container.addSubview(titleLabel)
-        titleLabel.anchor(top: container.topAnchor, left: container.leftAnchor, bottom: container.bottomAnchor, right: editButton.leftAnchor, paddingTop: 16, paddingLeft: 16, paddingBottom: 16, paddingRight: 4)
+        titleLabel.anchor(top: container.topAnchor, left: container.leftAnchor, bottom: container.bottomAnchor, right: editButton.leftAnchor, paddingTop: 24, paddingLeft: 16, paddingBottom: 24, paddingRight: 4)
 
     }
     

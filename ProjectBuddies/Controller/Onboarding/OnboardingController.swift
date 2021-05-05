@@ -1,21 +1,21 @@
 //
-//  RoomController.swift
+//  onboardingController.swift
 //  ProjectBuddies
 //
-//  Created by Dominik Strama on 15/03/2021.
+//  Created by Dominik Strama on 18/04/2021.
 //
 
 import UIKit
 
-protocol CreateRoomDelegate: class {
-    func controllerDidFinishUploadingRoom(controller: CreateRoomController)
+protocol Onboardingelegate: AnyObject {
+    func controllerDidFinishUploadingData(controller: OnboardingController)
 }
 
-class CreateRoomController: UIPageViewController, UITextViewDelegate, CreateRoomPhotoDelegate, CreateRoomNameDelegate {
-
+class OnboardingController: UIPageViewController {
+    
     // MARK: - Properties
     
-    weak var delegateCreateRoom: CreateRoomDelegate?
+    weak var delegateUploadData: Onboardingelegate?
     
     var pages = [UIViewController]()
     
@@ -27,7 +27,9 @@ class CreateRoomController: UIPageViewController, UITextViewDelegate, CreateRoom
         return pc
     }()
     
-    private var roomImage: UIImageView = {
+    private var fullname: String? = nil
+    
+    private var userImage: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
@@ -38,89 +40,75 @@ class CreateRoomController: UIPageViewController, UITextViewDelegate, CreateRoom
         iv.layer.borderWidth = 0.5
         iv.layer.borderColor = K.Color.gray.cgColor
         iv.backgroundColor = K.Color.searchBarGray
-        iv.image = UIImage(systemName: "group")
+        iv.image = UIImage(named: "profileImage")
         iv.tintColor = K.Color.blackApp
         return iv
     }()
     
-    private var roomName: String?
+    private var bio: String? = nil
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
-
-        let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
-        view.addGestureRecognizer(tap)
-        
         self.dataSource = self
         self.delegate = self
         
         setupPageControl()
     }
     
-    // MARK: - Helpers
-    
-    private func setupNavigationBar() {
-        let image = UIImage(systemName: "chevron.left")
-        let backBarButtonItem = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(cancelTapped))
-        backBarButtonItem.tintColor = K.Color.navyApp
-        navigationItem.leftBarButtonItem = backBarButtonItem
-
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
     }
+    
+    // MARK: - API
+    
+    // MARK: - Helpers
     
     private func setupPageControl() {
         let initialPage = 0
-        
-        let page1 = CreateRoomNameController()
-        let page2 = CreateRoomPhotoController()
-        
+        let page1 = FullnameController()
         page1.delegate = self
+        let page2 = PhotoController()
         page2.delegate = self
-        
+        let page3 = BioController()
+        page3.delegate = self
+    
         self.pages.append(page1)
         self.pages.append(page2)
+        self.pages.append(page3)
         
         setViewControllers([pages[initialPage]], direction: .forward, animated: true, completion: nil)
         self.pageControl.numberOfPages = self.pages.count
         self.pageControl.currentPage = initialPage
         
-//        removeSwipeGesture()
+        removeSwipeGesture()
         
-        self.view.addSubview(self.pageControl)
-        self.pageControl.translatesAutoresizingMaskIntoConstraints = false
-        self.pageControl.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -5).isActive = true
-        self.pageControl.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -20).isActive = true
-        self.pageControl.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        self.pageControl.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
     }
     
-    private func saveRoom() {
-        guard let name = roomName, !name.isEmpty else { return }
-        guard let image = roomImage.image else { return }
-
+    private func saveUserData() {
+        guard let name = self.fullname else { return }
+        guard let description = self.bio else { return }
+        guard let image = self.userImage.image else { return }
+        
         showLoader(true)
-        RoomService.uploadRoom(name: name, image: image) { error in
+        UserService.updateUserFiledsAfterOnbording(name: name, photo: image, bio: description) { error in
             self.showLoader(false)
-
             if let error = error {
-                print("DEBUG: Failed to add room \(error.localizedDescription)")
+                print("Error adding project: \(error.localizedDescription)")
                 return
             }
-
-            self.delegateCreateRoom?.controllerDidFinishUploadingRoom(controller: self)
+            self.delegateUploadData?.controllerDidFinishUploadingData(controller: self)
         }
+        
     }
     
     // MARK: - Actions
-
-    @objc func cancelTapped() {
-        self.navigationController?.popViewController(animated: true)
-    }
+    
 }
 
-extension CreateRoomController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+extension OnboardingController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
             
@@ -168,15 +156,30 @@ extension CreateRoomController: UIPageViewControllerDataSource, UIPageViewContro
     
 }
 
-extension CreateRoomController {
-    
-    func continueNextPage(controller: CreateRoomNameController) {
-        self.roomName = controller.keyTextField.text
+extension OnboardingController: FullnameContinueDelegate {
+    func continueNextPage(controller: FullnameController) {
+        guard let text = controller.keyTextField.text, !text.isEmpty else { return }
+        self.fullname = text
         self.goToNextPage()
     }
-    
-    func continueNextPage(controller: CreateRoomPhotoController) {
-        self.roomImage.image = controller.roomImage.image
-        self.saveRoom()
-    }
+
 }
+
+extension OnboardingController: PhotoContinueDelegate {
+    func continueNextPage(controller: PhotoController) {
+        self.userImage.image = controller.profileImage.image
+        self.goToNextPage()
+    }
+
+}
+
+extension OnboardingController: BioContinueDelegate {
+    func continueNextPage(controller: BioController) {
+        guard let userBio = controller.keyTextField.text, !userBio.isEmpty else { return }
+        self.bio = userBio
+        saveUserData()
+    }
+
+}
+
+

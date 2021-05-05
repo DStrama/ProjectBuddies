@@ -33,6 +33,14 @@ extension UIViewController {
         let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: email)
     }
+    
+    func removeSwipeGesture(){
+        for view in self.view.subviews {
+            if let subView = view as? UIScrollView {
+                subView.isScrollEnabled = false
+            }
+        }
+    }
 }
 
 extension UIView {
@@ -121,5 +129,20 @@ extension UIView {
         guard let view = superview else { return }
         anchor(top: view.topAnchor, left: view.leftAnchor,
             bottom: view.bottomAnchor, right: view.rightAnchor)
+    }
+}
+
+extension UIPageViewController {
+
+    func goToNextPage() {
+       guard let currentViewController = self.viewControllers?.first else { return }
+       guard let nextViewController = dataSource?.pageViewController( self, viewControllerAfter: currentViewController ) else { return }
+       setViewControllers([nextViewController], direction: .forward, animated: false, completion: nil)
+    }
+
+    func goToPreviousPage() {
+       guard let currentViewController = self.viewControllers?.first else { return }
+       guard let previousViewController = dataSource?.pageViewController( self, viewControllerBefore: currentViewController ) else { return }
+       setViewControllers([previousViewController], direction: .reverse, animated: false, completion: nil)
     }
 }

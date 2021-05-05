@@ -75,7 +75,7 @@ class GroupDetailController: UIViewController, UICollectionViewDelegate, UIColle
         btn.layer.borderWidth = 0.5
         btn.layer.borderColor = K.Color.navyApp.cgColor
         btn.layer.cornerRadius = 20
-        btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
+        btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 32, bottom: 4, right: 32)
         btn.setHeight(40)
         return btn
     }()
@@ -88,7 +88,7 @@ class GroupDetailController: UIViewController, UICollectionViewDelegate, UIColle
         btn.titleLabel?.font = K.Font.regular
         btn.backgroundColor = K.Color.navyApp
         btn.layer.cornerRadius = 20
-        btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
+        btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 32, bottom: 4, right: 32)
         btn.setHeight(40)
         return btn
     }()
@@ -264,7 +264,6 @@ class GroupDetailController: UIViewController, UICollectionViewDelegate, UIColle
     @objc func joinButtonTapped() {
         guard let tab = tabBarController as? MainTabBarController else {return}
         guard let user = tab.user else { return }
-        print(user)
         NotificationService.uploadNotification(type: .join, room: room!, group: group, user: user)
     }
     
@@ -284,8 +283,10 @@ extension GroupDetailController {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: memberReuseIdentifier, for: indexPath) as! MemberCell
         cell.viewModel = ProfileHeaderViewModel(user: (groupUsers?[indexPath.row])!)
+        cell.contentView.isUserInteractionEnabled = false
         return cell
     }
+    
 }
 
 // MARK: - UICollectionViewDelegate

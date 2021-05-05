@@ -14,15 +14,22 @@ private let experienceIdentifier = "ProfileExperienceCell"
 private let projectIdentifier = "ProfileProjectCell"
 private let textIdentifier = "ProfileTextCell"
 
+protocol ProfileDelegate: AnyObject {
+    func editedFields(controller: ProfileController)
+}
+
 class ProfileController: UITableViewController {
     
     // MARK: - Properties
+    
+    var delegate: ProfileDelegate?
     
     var user: User {
         didSet {
             self.fetchProperites()
         }
     }
+    
     private var experiences = [Experience]()
     private var projects = [Project]()
     private var softSkills = [String]()
@@ -344,6 +351,7 @@ extension ProfileController: EditedDelegate {
         hardSkills = controller.hardSkills
         self.tableView.reloadData()
         controller.navigationController?.popViewController(animated: true)
+        delegate?.editedFields(controller: self)
     }
 
 }

@@ -8,7 +8,7 @@
 import UIKit
 import SDWebImage
 
-protocol ButtonDelegate: class {
+protocol ButtonDelegate: AnyObject {
     func header(_ profileHeader: ProfileHeader, didTapActionButtonFor user: User)
 }
 
@@ -45,7 +45,7 @@ class ProfileHeader: UIView {
         btn.setHeight(40)
         btn.layer.cornerRadius = 20
         btn.addTarget(self, action: #selector(editProfile), for: .touchUpInside)
-        btn.contentEdgeInsets = UIEdgeInsets(top: 8, left: 68, bottom: 8, right: 68)
+        btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 32, bottom: 4, right: 32)
         return btn
     }()
     
@@ -92,4 +92,3 @@ class ProfileHeader: UIView {
     }
     
 }
-

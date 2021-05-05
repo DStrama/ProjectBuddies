@@ -6,13 +6,18 @@
 //
 
 import UIKit
+import Firebase
 
 private let reuseIdentifier = "RoomCell"
 
 class RoomsController: UITableViewController, UISearchControllerDelegate, UISearchResultsUpdating, UIPageViewControllerDelegate {
     // MARK: - Properties
     
-    var user: User
+    var user: User {
+        didSet {
+            setupNavigationBar()
+        }
+    }
     var viewModel: ProfileHeaderViewModel?
     
     private var rooms = [Room]()
@@ -35,7 +40,7 @@ class RoomsController: UITableViewController, UISearchControllerDelegate, UISear
         btn.titleLabel!.font = K.Font.regularBold
         btn.setTitleColor(K.Color.lighterCreme, for: .normal)
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
+        btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 32, bottom: 4, right: 32)
         btn.setTitle("Start a room", for: .normal)
         return btn
     }()
@@ -69,8 +74,9 @@ class RoomsController: UITableViewController, UISearchControllerDelegate, UISear
         fetchRooms()
         configureUI()
         setUpSearchBar()
+        checkIfUserHasData()
     }
-    
+
     // MARK: - API
     
     private func fetchRooms() {
@@ -82,6 +88,16 @@ class RoomsController: UITableViewController, UISearchControllerDelegate, UISear
     }
     
     // MARK: - Helpers
+    
+    private func checkIfUserHasData() {
+        if self.user.fullname == "" || self.user.aboutme == "" {
+            DispatchQueue.main.async {
+                let controller = OnboardingController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+                controller.delegateUploadData = self
+                self.navigationController?.pushViewController(controller, animated: true)
+            }
+        }
+    }
     
     private func configureTableView() {
         tableView.backgroundColor = K.Color.lighterCreme
@@ -130,6 +146,14 @@ class RoomsController: UITableViewController, UISearchControllerDelegate, UISear
         navigationController!.navigationBar.sizeToFit()
     }
     
+    private func fetchUser() {
+        UserService.fetchUser(userId: user.uid) { user in
+            self.user = user
+            self.tableView.refreshControl?.endRefreshing()
+            self.tableView.reloadData()
+        }
+    }
+    
     // MARK: - Actions
     
     @objc func createRoom() {
@@ -154,6 +178,7 @@ class RoomsController: UITableViewController, UISearchControllerDelegate, UISear
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
     {
         let controller = ProfileController(user: user)
+        controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -244,5 +269,21 @@ extension RoomsController {
             isFiltered = true
          }
          self.tableView.reloadData()
+    }
+}
+
+// MARK -
+
+extension RoomsController: Onboardingelegate {
+    func controllerDidFinishUploadingData(controller: OnboardingController) {
+        fetchUser()
+        controller.navigationController?.popViewController(animated: true)
+    }
+}
+
+extension RoomsController: ProfileDelegate {
+    func editedFields(controller: ProfileController) {
+        self.user.profileImageUrl = controller.user.profileImageUrl
+//        setupNavigationBar()
     }
 }

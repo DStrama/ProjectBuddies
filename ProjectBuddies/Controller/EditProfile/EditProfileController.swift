@@ -318,7 +318,7 @@ extension EditProfileController: addElementDelegate {
                 controller.setUpProperties(title: "Update your bio", text: user!.aboutme, type: "update", placeholder: "Write something about yourself...")
                 navigationController?.pushViewController(controller, animated: true)
             case "Experience":
-                let controller = EditProfileExperienceController()
+                let controller = EditProfileExperienceController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
                 controller.experienceEditDelegate = self
                 controller.operationType = "add"
                 navigationController?.pushViewController(controller, animated: true)
@@ -368,11 +368,11 @@ extension EditProfileController: textDelegate {
 extension EditProfileController: EditExperienceDelegate {
     
     func exitExperienceCell(viewModel: ExperienceViewModel) {
-        let controller = EditProfileExperienceController()
+        let controller = EditProfileExperienceController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
         controller.experienceEditDelegate = self
         controller.operationType = "update"
         controller.documentId = viewModel.id!
-        controller.setUpProperties(title: viewModel.name!, company: viewModel.company!, employmentType: "", description: viewModel.description!)
+        controller.setUpProperties(title: viewModel.name!, company: viewModel.company!, description: viewModel.description!)
         navigationController?.pushViewController(controller, animated: true)
     }
 }

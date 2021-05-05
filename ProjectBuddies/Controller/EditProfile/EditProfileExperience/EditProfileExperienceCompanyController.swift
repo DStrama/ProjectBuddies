@@ -1,26 +1,26 @@
 //
-//  EditProfileProjectDescriptionController.swift
+//  EditProfileExperienceCompanyController.swift
 //  ProjectBuddies
 //
-//  Created by Dominik Strama on 23/04/2021.
+//  Created by Dominik Strama on 05/05/2021.
 //
 
 import UIKit
 
-protocol EditProfileProjectDescriptionDelegate: AnyObject {
-    func continueNextPage(controller: EditProfileProjectDescriptionController)
+protocol EditProfileExperienceCompanyDelegate: class {
+    func continueNextPage(controller: EditProfileExperienceCompanyController)
 }
 
-class EditProfileProjectDescriptionController: UIViewController {
+class EditProfileExperienceCompanyController: UIViewController {
     
     // MARK: - Properties
     
-    weak var delegate: EditProfileProjectDescriptionDelegate?
+    weak var delegate: EditProfileExperienceCompanyDelegate?
     
-    let fistNameLabel: UILabel = {
+    let titleLabel: UILabel = {
         let l = UILabel()
         l.textAlignment = .center
-        l.text = "The Project \ndescription is"
+        l.text = "Company name"
         l.numberOfLines = 2
         l.font = K.Font.header
         l.textAlignment = .left
@@ -29,7 +29,7 @@ class EditProfileProjectDescriptionController: UIViewController {
     
     lazy var keyTextField: InputTextView = {
         var tv = InputTextView()
-        tv.placeholderText = "Enter description..."
+        tv.placeholderText = "Enter name..."
         tv.font = K.Font.regular
         tv.delegate = self
         tv.backgroundColor = K.Color.white
@@ -74,15 +74,15 @@ class EditProfileProjectDescriptionController: UIViewController {
     // MARK: - Helpers
 
     private func setUpViewsAndConstraints() {
-        characterCountLabel.text = "0/300"
-        continueButton.addTarget(self, action: #selector(continueOnBoarding), for: .touchUpInside)
+        characterCountLabel.text = "\(keyTextField.text.count)/35"
+        continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
         view.backgroundColor = K.Color.lighterCreme
         
-        view.addSubview(fistNameLabel)
-        fistNameLabel.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, paddingTop: 48, paddingLeft: 56)
+        view.addSubview(titleLabel)
+        titleLabel.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, paddingTop: 48, paddingLeft: 56)
 
         view.addSubview(keyTextField)
-        keyTextField.anchor(top: fistNameLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 32, paddingLeft: 56, paddingRight: 56, height: 150)
+        keyTextField.anchor(top: titleLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 32, paddingLeft: 56, paddingRight: 56, height: 40)
         
         view.addSubview(line)
         line.anchor(top: keyTextField.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingLeft: 56, paddingRight: 56, height: 2)
@@ -105,7 +105,7 @@ class EditProfileProjectDescriptionController: UIViewController {
         }
     }
     
-    @objc private func continueOnBoarding() {
+    @objc private func continueTapped() {
         self.delegate!.continueNextPage(controller: self)
     }
     
@@ -117,12 +117,12 @@ class EditProfileProjectDescriptionController: UIViewController {
 
 // MARK: - UITextFieldDelegate
 
-extension EditProfileProjectDescriptionController: UITextViewDelegate {
+extension EditProfileExperienceCompanyController: UITextViewDelegate {
     
     func textViewDidChange(_ textView: UITextView) {
-        checkMaxLength(textView, maxLength: 300)
+        checkMaxLength(textView, maxLength: 35)
         let count = textView.text.count
-        characterCountLabel.text = "\(count)/300"
+        characterCountLabel.text = "\(count)/35"
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
@@ -132,4 +132,3 @@ extension EditProfileProjectDescriptionController: UITextViewDelegate {
         return true
     }
 }
-

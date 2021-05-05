@@ -1,26 +1,26 @@
 //
-//  EditProfileProjectDescriptionController.swift
+//  EditProfileExperienceDescriptionController.swift
 //  ProjectBuddies
 //
-//  Created by Dominik Strama on 23/04/2021.
+//  Created by Dominik Strama on 05/05/2021.
 //
 
 import UIKit
 
-protocol EditProfileProjectDescriptionDelegate: AnyObject {
-    func continueNextPage(controller: EditProfileProjectDescriptionController)
+protocol EditProfileExperienceDescriptionDelegate: AnyObject {
+    func continueNextPage(controller: EditProfileExperienceDescriptionController)
 }
 
-class EditProfileProjectDescriptionController: UIViewController {
+class EditProfileExperienceDescriptionController: UIViewController {
     
     // MARK: - Properties
     
-    weak var delegate: EditProfileProjectDescriptionDelegate?
+    weak var delegate: EditProfileExperienceDescriptionDelegate?
     
     let fistNameLabel: UILabel = {
         let l = UILabel()
         l.textAlignment = .center
-        l.text = "The Project \ndescription is"
+        l.text = "Description"
         l.numberOfLines = 2
         l.font = K.Font.header
         l.textAlignment = .left
@@ -75,7 +75,7 @@ class EditProfileProjectDescriptionController: UIViewController {
 
     private func setUpViewsAndConstraints() {
         characterCountLabel.text = "0/300"
-        continueButton.addTarget(self, action: #selector(continueOnBoarding), for: .touchUpInside)
+        continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
         view.backgroundColor = K.Color.lighterCreme
         
         view.addSubview(fistNameLabel)
@@ -105,7 +105,7 @@ class EditProfileProjectDescriptionController: UIViewController {
         }
     }
     
-    @objc private func continueOnBoarding() {
+    @objc private func continueTapped() {
         self.delegate!.continueNextPage(controller: self)
     }
     
@@ -117,7 +117,7 @@ class EditProfileProjectDescriptionController: UIViewController {
 
 // MARK: - UITextFieldDelegate
 
-extension EditProfileProjectDescriptionController: UITextViewDelegate {
+extension EditProfileExperienceDescriptionController: UITextViewDelegate {
     
     func textViewDidChange(_ textView: UITextView) {
         checkMaxLength(textView, maxLength: 300)
@@ -132,4 +132,5 @@ extension EditProfileProjectDescriptionController: UITextViewDelegate {
         return true
     }
 }
+
 

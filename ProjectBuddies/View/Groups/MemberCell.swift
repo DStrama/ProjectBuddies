@@ -57,8 +57,8 @@ class MemberCell: UICollectionViewCell {
         memberImageView.layer.borderWidth = 0.5
         memberImageView.layer.borderColor = UIColor.gray.cgColor
         
-        addSubview(memberImageView)
-        memberImageView.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingTop: 4, paddingLeft: 4, paddingBottom: 4, paddingRight: 4)
+        contentView.addSubview(memberImageView)
+        memberImageView.anchor(top: contentView.topAnchor, left: contentView.leftAnchor, bottom: contentView.bottomAnchor, right: contentView.rightAnchor, paddingTop: 4, paddingLeft: 4, paddingBottom: 4, paddingRight: 4)
     }
     
     private func configure() {
