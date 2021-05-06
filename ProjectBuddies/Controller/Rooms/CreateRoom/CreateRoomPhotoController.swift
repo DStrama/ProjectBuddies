@@ -60,7 +60,7 @@ class CreateRoomPhotoController: UIViewController {
     }
     
     private func setUpViewsAndConstraints() {
-        continueButton.addTarget(self, action: #selector(continueOnBoarding), for: .touchUpInside)
+        continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
         roomImage.isUserInteractionEnabled = true
         roomImage.addGestureRecognizer(tapGestureRecognizer)
@@ -78,15 +78,13 @@ class CreateRoomPhotoController: UIViewController {
 
     }
     
-    @objc private func continueOnBoarding() {
+    @objc private func continueTapped() {
         self.delegate!.continueNextPage(controller: self)
     }
     
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
     {
-        let tappedImage = tapGestureRecognizer.view as! UIImageView
         showImagePickerControllerActionSheet()
-        
     }
 }
 

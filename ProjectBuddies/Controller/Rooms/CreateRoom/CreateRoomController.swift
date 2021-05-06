@@ -86,14 +86,8 @@ class CreateRoomController: UIPageViewController, UITextViewDelegate, CreateRoom
         self.pageControl.numberOfPages = self.pages.count
         self.pageControl.currentPage = initialPage
         
-//        removeSwipeGesture()
-        
-        self.view.addSubview(self.pageControl)
-        self.pageControl.translatesAutoresizingMaskIntoConstraints = false
-        self.pageControl.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -5).isActive = true
-        self.pageControl.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -20).isActive = true
-        self.pageControl.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        self.pageControl.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        removeSwipeGesture()
+
     }
     
     private func saveRoom() {

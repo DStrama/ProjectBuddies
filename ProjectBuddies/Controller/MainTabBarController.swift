@@ -25,6 +25,7 @@ class MainTabBarController: UITabBarController {
         super.viewDidLoad()
         checkIfUserIsLoggedIn()
         fetchUser()
+        setupApperance()
     }
     
     // MARK: - API
@@ -52,7 +53,7 @@ class MainTabBarController: UITabBarController {
     private func configureViewControlllers(withUser user: User) {
         view.backgroundColor = .white
         
-        let rooms = templatNavigationController(unselectedImage: UIImage(systemName: "folder")!, selectedImage: UIImage(systemName: "folder.fill")!, rootViewController: RoomsController(user: user), title: "Rooms")
+        let rooms = templatNavigationController(unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: RoomsController(user: user), title: "Rooms")
         
         let messages = templatNavigationController(unselectedImage: UIImage(systemName: "message")!, selectedImage: UIImage(systemName: "message.fill")!, rootViewController: ConversationsController(), title: "Messages")
         
@@ -68,6 +69,27 @@ class MainTabBarController: UITabBarController {
         nav.tabBarItem.selectedImage = selectedImage
         nav.tabBarItem.title = title
         return nav
+    }
+    
+    private func setupApperance() {
+        self.tabBar.unselectedItemTintColor = UIColor.gray
+        self.tabBar.tintColor = K.Color.navyApp
+        self.tabBar.barTintColor = K.Color.white
+        self.tabBar.isTranslucent = true
+        addShadow()
+    }
+    
+    private func addShadow() {
+        tabBar.layer.shadowColor = UIColor.lightGray.cgColor
+        tabBar.layer.shadowOpacity = 0.5
+        tabBar.layer.shadowOffset = CGSize.zero
+        tabBar.layer.shadowRadius = 5
+        self.tabBar.layer.borderColor = UIColor.clear.cgColor
+        self.tabBar.layer.borderWidth = 0
+        self.tabBar.clipsToBounds = false
+        self.tabBar.backgroundColor = UIColor.white
+        UITabBar.appearance().shadowImage = UIImage()
+        UITabBar.appearance().backgroundImage = UIImage()
     }
 }
 

@@ -37,7 +37,7 @@ struct UserService {
         }
     }
     
-    static func updateUser(field: String, value: String, completion: @escaping(Error?) -> Void) {
+    static func updateUser(field: String, value: Any, completion: @escaping(Error?) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         K.FStore.COLLECTION_USERS.document(uid).updateData([field : value]) { error in
             if let error = error {
@@ -108,4 +108,5 @@ struct UserService {
             }
         }
     }
+    
 }

@@ -64,7 +64,7 @@ class GroupController: UIViewController, UICollectionViewDelegate, UICollectionV
     
     private func setupNavigationBar() {
         let add = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(createGroup))
-        let imageShare = UIImage(systemName: "square.and.arrow.up")
+        let imageShare = UIImage(systemName: "arrowshape.turn.up.right.fill")
         let shareKey = UIBarButtonItem(image: imageShare, style: .plain, target: self, action: #selector(shareRoomKey))
         add.tintColor = K.Color.navyApp
         shareKey.tintColor = K.Color.navyApp

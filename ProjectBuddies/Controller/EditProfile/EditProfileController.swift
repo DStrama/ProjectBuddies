@@ -92,6 +92,7 @@ class EditProfileController: UITableViewController {
         tableView.isScrollEnabled = true
         tableView.isUserInteractionEnabled = true
         tableView.backgroundColor = K.Color.lighterCreme
+        tableView.separatorStyle = UITableViewCell.SeparatorStyle.none
         
         let dummyViewHeight = CGFloat(50)
         self.tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.bounds.size.width, height: dummyViewHeight))
@@ -236,12 +237,49 @@ extension EditProfileController {
     private func deleteAction(at indexPath: IndexPath) -> UIContextualAction {
         let action = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion) in
             if indexPath.section == 3 {
-                action.image = UIImage(systemName: "trash")
-                action.backgroundColor = K.Color.red
                 ExperienceService.updateUserRoomsAfterRemovingRoom(experienceId: self.experiences[indexPath.row].experienceId)
-                print(self.experiences[indexPath.row].experienceId)
                 self.experiences.remove(at: indexPath.row)
                 self.tableView.deleteRows(at: [indexPath], with: .automatic)
+            }
+            if indexPath.section == 4 {
+                ProjectService.updateUserRoomsAfterRemovingRoom(projectId: self.projects[indexPath.row].projectId)
+                self.projects.remove(at: indexPath.row)
+                self.tableView.deleteRows(at: [indexPath], with: .automatic)
+            }
+            if indexPath.section == 5 {
+                let updated = self.softSkills.filter { $0 != self.softSkills[indexPath.row] }
+                UserService.updateUser(field: "softskills", value: updated) { error in
+                    if let error = error {
+                        print("Error updated document: \(error)")
+                    } else {
+                        self.softSkills = updated
+                        self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                    }
+                }
+            }
+            if indexPath.section == 6 {
+                let updated = self.hardSkills.filter { $0 != self.hardSkills[indexPath.row] }
+                UserService.updateUser(field: "hardskills", value: updated) { error in
+                    if let error = error {
+                        print("Error updated document: \(error)")
+                    } else {
+                        self.hardSkills = updated
+                        self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                    }
+                }
+            }
+            
+            if indexPath.section == 7 {
+                let updated = self.hobbies.filter { $0 != self.hobbies[indexPath.row] }
+                
+                UserService.updateUser(field: "hobbies", value: updated) { error in
+                    if let error = error {
+                        print("Error updated document: \(error)")
+                    } else {
+                        self.hobbies = updated
+                        self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                    }
+                }
             }
         }
         return action

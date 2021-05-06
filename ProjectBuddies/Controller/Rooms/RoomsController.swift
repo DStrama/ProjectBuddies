@@ -284,6 +284,5 @@ extension RoomsController: Onboardingelegate {
 extension RoomsController: ProfileDelegate {
     func editedFields(controller: ProfileController) {
         self.user.profileImageUrl = controller.user.profileImageUrl
-//        setupNavigationBar()
     }
 }

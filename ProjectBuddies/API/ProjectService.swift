@@ -71,5 +71,48 @@ struct ProjectService {
             })
         }
     }
+    
+    static func removeProject(projectId: String,  completon: @escaping(Error?) -> Void) {
+        K.FStore.COLLECTION_PROJECTS.document(projectId).delete { error in
+            if let error = error {
+                print("Error removing document: \(error)")
+            } else {
+                print("Document successfully removed!")
+            }
+        }
+    }
+    
+    static func deleteInUserProjectCollectionProject(projectId: String, completion: @escaping(Error?) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        K.FStore.COLLECTION_USERS.document(uid).collection("user-project").getDocuments { snapshot, error in
+            snapshot?.documents.forEach({ document in
+                if ( document.documentID == projectId ) {
+                    K.FStore.COLLECTION_USERS.document(uid).collection("user-project").document(projectId).delete { error in
+                        if let error = error {
+                            print("Error removing experience in user-experience collection: \(error)")
+                        } else {
+                            print("Document successfully removed!")
+                        }
+                    }
+                }
+            })
+        }
+    }
+    
+    static func updateUserRoomsAfterRemovingRoom(projectId: String) {
+        removeProject(projectId: projectId) { (error) in
+            if let error = error {
+                print("Error removing document: \(error)")
+                return
+            }
+        }
+
+        deleteInUserProjectCollectionProject(projectId: projectId) { error in
+            if let error = error {
+                print("Error removing document: \(error)")
+                return
+            }
+        }
+    }
 
 }
