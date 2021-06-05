@@ -7,14 +7,14 @@
 
 import UIKit
 
-protocol AuthenticationDelegate: AnyObject {
-    func anthenticationDidComplete()
+protocol LoginControllerDelegate: AnyObject {
+    func didFinishLogin()
 }
 
 class LoginController: UIViewController {
     // MARK: - Properties
 
-    weak var delegate: AuthenticationDelegate?
+    weak var delegate: LoginControllerDelegate?
 
     let loginLabel: UILabel = {
         let l = UILabel()
@@ -92,19 +92,6 @@ class LoginController: UIViewController {
         return btn
     }()
 
-    private let forgotPassword: UIButton = {
-        let btn = UIButton(type: .system)
-
-        let atts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.black, .font: K.Font.regular!]
-        let boldAtts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.black, .font: K.Font.regularBold!]
-
-        let attributedTitle = NSMutableAttributedString(string: "Forgot your password? ", attributes: atts)
-        attributedTitle.append(NSMutableAttributedString(string: "Get help signing in.", attributes: boldAtts))
-        btn.addTarget(self, action: #selector(handleForgotPassword), for: .touchUpInside)
-        btn.setAttributedTitle(attributedTitle, for: .normal)
-        return btn
-    }()
-
     private let dontHaveAccountButton: UIButton = {
         let btn = UIButton(type: .system)
 
@@ -174,13 +161,10 @@ class LoginController: UIViewController {
         self.present(nav, animated: true, completion: nil)
     }
 
-    @objc func handleForgotPassword() {
-
-    }
 }
 
 extension LoginController: LoginWithEmailControllerDelegate {
     func didFinishLogin() {
-        self.delegate?.anthenticationDidComplete()
+        self.delegate?.didFinishLogin()
     }
 }

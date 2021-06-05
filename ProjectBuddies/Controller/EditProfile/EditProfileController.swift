@@ -17,7 +17,6 @@ protocol EditedDelegate: class {
 }
 
 class EditProfileController: UITableViewController {
-    
     // MARK: - Properties
 
     var user: User?
@@ -406,9 +405,8 @@ extension EditProfileController: textDelegate {
 extension EditProfileController: EditExperienceDelegate {
     
     func exitExperienceCell(viewModel: ExperienceViewModel) {
-        let controller = EditProfileExperienceController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
-        controller.experienceEditDelegate = self
-        controller.operationType = "update"
+        let controller = UpdateEditProfileExperienceController()
+        controller.delegate = self
         controller.documentId = viewModel.id!
         controller.setUpProperties(title: viewModel.name!, company: viewModel.company!, description: viewModel.description!)
         navigationController?.pushViewController(controller, animated: true)
@@ -418,11 +416,10 @@ extension EditProfileController: EditExperienceDelegate {
 extension EditProfileController: EditProjectDelegate {
     
     func exitProjectCell(viewModel: ProjectViewModel) {
-        let controller = EditProfileProjectController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
-        controller.projectEditDelegate = self
-        controller.operationType = "update"
+        let controller = UpdateEditProfileProjectController()
+        controller.delegate = self
         controller.documentId = viewModel.id!
-        controller.setUpProperties(title: viewModel.name!, description: viewModel.description!, technologies: viewModel.technologies)
+        controller.setUpProperties(name: viewModel.name!, description: viewModel.description!, technologies: viewModel.technologies)
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -488,5 +485,19 @@ extension EditProfileController: EditTextDelegate {
             default:
                 break
         }
+    }
+}
+
+extension EditProfileController: UpdateExprienceEditDelegate {
+    func updateExperienceEdit(controller: UpdateEditProfileExperienceController) {
+        self.handleRefreshExperience()
+        controller.navigationController?.popViewController(animated: true)
+    }
+}
+
+extension EditProfileController: UpdateProjectEditDelegate {
+    func updateProjectEdit(controller: UpdateEditProfileProjectController) {
+        self.handleRefreshProjects()
+        controller.navigationController?.popViewController(animated: true)
     }
 }

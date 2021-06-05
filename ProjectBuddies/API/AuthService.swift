@@ -7,6 +7,7 @@
 
 import Firebase
 import FirebaseDatabase
+import GoogleSignIn
 
 struct AuthCredentials {
     let email: String
@@ -49,4 +50,24 @@ struct AuthService {
         Auth.auth().signIn(withEmail: email, password: password, completion: completion)
     }
     
+    static func signupWithGoogle(user: GIDGoogleUser, credential: AuthCredential) {
+        Auth.auth().signIn(with: credential) { (authResult, error) in
+            if let error = error {
+                print("DEBUG: Failed to log in with google \(error.localizedDescription)")
+                return
+            }
+            
+        }
+    }
+    
+    static func singoutUser(completion: @escaping(Error?) -> Void) {
+        let firebaseAuth = Auth.auth()
+        do {
+            try firebaseAuth.signOut()
+            completion(nil)
+        } catch let signOutError as NSError {
+            print ("Error signing out: %@", signOutError)
+            return
+        }
+    }
 }

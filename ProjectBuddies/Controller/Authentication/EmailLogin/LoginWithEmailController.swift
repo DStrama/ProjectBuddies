@@ -141,10 +141,10 @@ class LoginWithEmailController: UIViewController, UITextViewDelegate {
         AuthService.logUserIn(email: email, password: password) { (result, error) in
             self.showLoader(false)
             if let error = error {
+                // todo: show label with error
                 print("DEBUG: Failed to log in user \(error.localizedDescription)")
                 return
             }
-
             self.delegateFinish?.didFinishLogin()
         }
     }
@@ -153,15 +153,6 @@ class LoginWithEmailController: UIViewController, UITextViewDelegate {
         guard let passwordText = textField.text, !passwordText.isEmpty else { return }
         guard let emailText = emailTextField.text, !emailText.isEmpty else { return }
 
-//        checkMaxLength(textField, maxLength: 20)
-//        if isValidPassword(passwordText) && isValidEmail(emailText) {
-//            self.loginButton.isEnabled = true
-//            self.loginButton.alpha = 1.0
-//        } else {
-//            self.loginButton.isEnabled = false
-//            self.loginButton.alpha = 0.5
-//        }
-        
         self.loginButton.isEnabled = true
         self.loginButton.alpha = 1.0
     }

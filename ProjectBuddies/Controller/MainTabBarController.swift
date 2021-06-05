@@ -55,7 +55,7 @@ class MainTabBarController: UITabBarController {
         
         let rooms = templatNavigationController(unselectedImage: UIImage(systemName: "house")!, selectedImage: UIImage(systemName: "house.fill")!, rootViewController: RoomsController(user: user), title: "Rooms")
         
-        let messages = templatNavigationController(unselectedImage: UIImage(systemName: "message")!, selectedImage: UIImage(systemName: "message.fill")!, rootViewController: ConversationsController(), title: "Messages")
+        let messages = templatNavigationController(unselectedImage: UIImage(systemName: "message")!, selectedImage: UIImage(systemName: "message.fill")!, rootViewController: ConversationsController(user: user), title: "Messages")
         
         let notifications = templatNavigationController(unselectedImage: UIImage(systemName: "bell")!, selectedImage: UIImage(systemName: "bell.fill")!, rootViewController: NotificationController(), title: "Notification")
         
@@ -96,6 +96,6 @@ class MainTabBarController: UITabBarController {
 extension MainTabBarController: AuthenticationDelegate {
     func anthenticationDidComplete() {
         fetchUser()
-        self.dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: nil)
     }
 }

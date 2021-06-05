@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Bucket
-   uuid = "3C0C7388-4C83-4DCD-A84F-66BD3748E9F0"
+   uuid = "57568E92-2B6F-4318-8316-83C328D16FA9"
    type = "0"
    version = "2.0">
    <Breakpoints>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "E7EF173B-C772-42A0-9BFC-858FBE44DF17"
+            uuid = "8D218ED3-CB6F-4686-A9F6-45BF49431EAB"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ProjectBuddies/Controller/SpecifyEditProfileController.swift"
+            filePath = "ProjectBuddies/Controller/Rooms/JoinRoomController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "64"
-            endingLineNumber = "64"
-            landmarkName = "setupNavigationBar()"
-            landmarkType = "7">
+            startingLineNumber = "140"
+            endingLineNumber = "140"
+            landmarkName = "JoinRoomController"
+            landmarkType = "21">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

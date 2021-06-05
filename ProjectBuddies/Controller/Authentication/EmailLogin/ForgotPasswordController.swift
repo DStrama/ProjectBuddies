@@ -98,7 +98,6 @@ class ForgotPasswordController: UIViewController {
 
     @objc private func resetTapped() {
         UserService.sendPasswordResetEmail(email: emailTextField.text!)
-        
     }
 
     @objc private func textFieldDidChange(_ textField: UITextField) {

@@ -7,18 +7,18 @@
 
 import UIKit
 
-private let reusableIdentifier = ""
+private let reusableIdentifier = "conversationIdentifier"
 
 class ConversationCell: UITableViewCell {
     
     // MARK: - Properties
     
-//    var viewModel: ConversationCellViewModel? {
+//    var viewModel: ConversationViewModel? {
 //        didSet{
 //            configure()
 //        }
 //    }
-    
+//    
     private var userImage: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
@@ -43,7 +43,7 @@ class ConversationCell: UITableViewCell {
         return l
     }()
     
-    private let userMessageLabel: UILabel = {
+    private let latestMessageLabel: UILabel = {
         let l = UILabel()
         l.font = K.Font.small
         l.numberOfLines = 0
@@ -51,8 +51,8 @@ class ConversationCell: UITableViewCell {
         l.textAlignment = .left
         return l
     }()
-    
-    // MARK: - Lifecycle
+
+    // MARK: - Initialization
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -67,17 +67,27 @@ class ConversationCell: UITableViewCell {
     
     private func setUpViewsAndConstraints() {
         
+        let stack = UIStackView(arrangedSubviews: [userNameLabel, latestMessageLabel])
+        stack.axis = .vertical
+        stack.spacing = 10
         contentView.addSubview(userImage)
-        userImage.anchor(top: contentView.topAnchor, left: contentView.leftAnchor, paddingTop: 16, paddingLeft: 16)
+        userImage.anchor(top: contentView.topAnchor, left: contentView.leftAnchor, bottom: contentView.bottomAnchor ,paddingTop: 16, paddingLeft: 16, paddingBottom: 16)
         
-        contentView.addSubview(userNameLabel)
-        userNameLabel.anchor(top: contentView.topAnchor, left: userImage.rightAnchor, right: contentView.rightAnchor)
-        
-        contentView.addSubview(userMessageLabel)
-        userMessageLabel.anchor(top: userNameLabel.bottomAnchor, left: userImage.rightAnchor, bottom: contentView.bottomAnchor, right: contentView.rightAnchor, paddingBottom: 16, paddingRight: 16)
+        contentView.addSubview(stack)
+        stack.centerY(inView: userImage, leftAnchor: userImage.rightAnchor, paddingLeft: 8)
+
     }
     
-    private func configure() {
+    func configure(name: String, photoUrl: String, time: String, latestMessage: String) {
+        userNameLabel.text = name
+        userImage.sd_setImage(with: URL(string: photoUrl))
         
+        let atts: [NSAttributedString.Key: Any] = [.foregroundColor: K.Color.gray, .font: K.Font.regular!]
+
+        let attributedTitle = NSMutableAttributedString(string: latestMessage, attributes: atts)
+        attributedTitle.append(NSMutableAttributedString(string: " - ", attributes: atts))
+        attributedTitle.append(NSMutableAttributedString(string: time, attributes: atts))
+
+        latestMessageLabel.attributedText = attributedTitle
     }
 }

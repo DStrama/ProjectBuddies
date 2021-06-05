@@ -117,8 +117,8 @@ class SignupPasswordController: UIViewController {
 
     @objc func nextTapped() {
         guard let email = self.email else { return }
-        guard let password = self.textPasswordLabel.text else { return }
-
+        guard let password = self.passwordTextField.text else { return }
+        
         showLoader(true)
         let credentials = AuthCredentials(email: email, password: password, fullname: "", profileImage: UIImage(named: "profileImage")!)
         AuthService.registerUser(withCredenctial: credentials) { error in

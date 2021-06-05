@@ -64,5 +64,6 @@ struct K {
         static let COLLECTION_EXPERIENCES = Firestore.firestore().collection("experiences")
         static let COLLECTION_PROJECTS = Firestore.firestore().collection("projects")
         static let COLLECTION_NOTIFICATIONS = Firestore.firestore().collection("notifications")
+        static let COLLECTION_CHATS = Firestore.firestore().collection("chats")
     }
 }

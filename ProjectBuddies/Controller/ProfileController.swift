@@ -19,17 +19,17 @@ protocol ProfileDelegate: AnyObject {
 }
 
 class ProfileController: UITableViewController {
-    
+
     // MARK: - Properties
-    
+
     var delegate: ProfileDelegate?
-    
+
     var user: User {
         didSet {
             self.fetchProperites()
         }
     }
-    
+
     private var experiences = [Experience]()
     private var projects = [Project]()
     private var softSkills = [String]()
@@ -37,9 +37,9 @@ class ProfileController: UITableViewController {
     private var hobbies = [String]()
 
     private var headers: [String] = ["Profile", "About me", "Experience", "Projects", "Soft skills", "Hard skills", "Hobbies"]
-    
+
     // MARK: - Lifecycle
-    
+
     init(user: User) {
         self.user = user
         self.hardSkills = user.hardskills
@@ -48,26 +48,26 @@ class ProfileController: UITableViewController {
 
         super.init(style: .grouped)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
         setupNavigationBar()
         fetchProperites()
     }
-    
+
     // MARK: - API
-    
+
     private func fetchProperites() {
         fetchProjects()
 //        fetchUser()
         fetchExperience()
     }
-    
+
     private func fetchUser() {
         UserService.fetchUser(userId: user.uid) { user in
             self.user = user
@@ -79,8 +79,8 @@ class ProfileController: UITableViewController {
             self.tableView.reloadData()
         }
     }
-    
-    
+
+
     private func fetchProjects() {
         self.projects.removeAll()
         ProjectService.fetchProjects(userId: user.uid) { projects in
@@ -89,7 +89,7 @@ class ProfileController: UITableViewController {
             self.tableView.reloadData()
         }
     }
-    
+
     private func fetchExperience() {
         self.projects.removeAll()
         ExperienceService.fetchExperiences(userId: user.uid) { experiences in
@@ -98,7 +98,7 @@ class ProfileController: UITableViewController {
             self.tableView.reloadData()
         }
     }
-    
+
     private func configureCollectionView() {
         tableView.separatorStyle = UITableViewCell.SeparatorStyle.none
         tableView.backgroundColor = K.Color.lighterCreme
@@ -118,7 +118,7 @@ class ProfileController: UITableViewController {
         let settingsBarButtonItem = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(openSettings))
         settingsBarButtonItem.tintColor = K.Color.navyApp
         navigationItem.rightBarButtonItem = settingsBarButtonItem
-        
+
         let imageBack = UIImage(systemName: "chevron.left")
         let backBarButtonItem = UIBarButtonItem(image: imageBack, style: .plain, target: self, action: #selector(cancelTapped))
         backBarButtonItem.tintColor = K.Color.navyApp
@@ -126,34 +126,34 @@ class ProfileController: UITableViewController {
 
         navigationItem.title = "Profile"
     }
-    
+
     // MARK: - Actions
-    
+
     @objc func openSettings() {
         let controller = SettingsController()
         navigationController?.pushViewController(controller, animated: true)
     }
-    
+
     @objc func cancelTapped() {
         self.navigationController?.popViewController(animated: true)
     }
-    
+
 }
 
 // MARK: - UICollectionViewDataSource
 
 extension ProfileController {
-    
+
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 7
     }
-    
+
     override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
         case 0:
             return 0
         case 1:
-            if user.aboutme.isEmpty {return 0}
+            if user.aboutme.isEmpty { return 0 }
             return 1
         case 2:
             return experiences.count
@@ -169,7 +169,7 @@ extension ProfileController {
             return 1
         }
     }
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let section = indexPath.section
         switch section {
@@ -202,11 +202,11 @@ extension ProfileController {
             return cell
         }
     }
-    
+
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
-    
+
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         switch section {
         case 0:
@@ -277,7 +277,7 @@ extension ProfileController {
 //            return header
 //        }
     }
-    
+
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         switch section {
         case 0:
@@ -322,7 +322,7 @@ extension ProfileController {
 
 extension ProfileController: ButtonDelegate {
     func header(_ profileHeader: ProfileHeader, didTapActionButtonFor user: User) {
-        
+
         if user.isCurrentUser {
             let controller = EditProfileController()
             controller.user = user
@@ -334,14 +334,15 @@ extension ProfileController: ButtonDelegate {
             controller.delegate = self
             navigationController?.pushViewController(controller, animated: true)
         } else {
-            let controller = ConversationsController()
+            let controller = ChatController()
+            controller.currentUser = self.user
             navigationController?.pushViewController(controller, animated: true)
         }
     }
 }
 
 extension ProfileController: EditedDelegate {
-    
+
     func editedFields(controller: EditProfileController) {
         user = controller.user!
         projects = controller.projects

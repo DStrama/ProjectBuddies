@@ -146,3 +146,33 @@ extension UIPageViewController {
        setViewControllers([previousViewController], direction: .reverse, animated: false, completion: nil)
     }
 }
+
+extension UINavigationController {
+    
+    func popToViewController(ofClass: AnyClass, animated: Bool = true) {
+      if let vc = viewControllers.filter({$0.isKind(of: ofClass)}).last {
+        popToViewController(vc, animated: animated)
+      }
+    }
+}
+
+extension UITableView {
+
+    func setEmptyMessage(_ message: String) {
+        let messageLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
+        messageLabel.text = message
+        messageLabel.textColor = .black
+        messageLabel.numberOfLines = 0
+        messageLabel.textAlignment = .center
+        messageLabel.font = K.Font.large
+        messageLabel.sizeToFit()
+
+        self.backgroundView = messageLabel
+        self.separatorStyle = .none
+    }
+
+    func restore() {
+        self.backgroundView = nil
+        self.separatorStyle = .singleLine
+    }
+}

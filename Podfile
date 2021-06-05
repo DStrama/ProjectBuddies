@@ -27,6 +27,7 @@ pod 'JGProgressHUD'
 pod 'TOCropViewController'
 pod 'MessageKit'
 
+
   target 'ProjectBuddiesTests' do
     inherit! :search_paths
     # Pods for testing

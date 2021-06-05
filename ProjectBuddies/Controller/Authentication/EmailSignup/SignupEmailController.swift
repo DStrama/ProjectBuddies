@@ -52,6 +52,13 @@ class SignupEmailController: UIViewController {
         btn.setHeight(50)
         return btn
     }()
+    
+    private let errorLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.tintColor = K.Color.red
+        lbl.text = "This email is already in use."
+        return lbl
+    }()
 
     // MARK: - Lifecycle
 
@@ -59,6 +66,8 @@ class SignupEmailController: UIViewController {
         super.viewDidLoad()
         setUpViewsAndConstraints()
         setupNavigationBar()
+        
+        errorLabel.isHidden = true
     }
 
     // MARK: - Helpers
@@ -82,15 +91,24 @@ class SignupEmailController: UIViewController {
 
         view.addSubview(line)
         line.anchor(top: emailTextField.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingLeft: 24, paddingRight: 24, height: 1)
+        
+        view.addSubview(errorLabel)
+        errorLabel.anchor(top: line.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 8, paddingLeft: 24, paddingRight: 24)
 
         view.addSubview(nextButton)
-        nextButton.anchor(top: line.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 40, paddingLeft: 24, paddingRight: 24)
+        nextButton.anchor(top: errorLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 40, paddingLeft: 24, paddingRight: 24)
     }
 
     private func checkMaxLength(_ textView: UITextView, maxLength: Int) {
         if (textView.text.count) > maxLength {
             textView.deleteBackward()
         }
+    }
+    
+    // todo: check weether the address email is alreadfy in use
+    
+    private func emailIsRegistered(email: String) -> Bool {
+        return false
     }
 
     // MARK: - Actions
@@ -100,12 +118,17 @@ class SignupEmailController: UIViewController {
     }
 
     @objc func nextTapped() {
-        let controller = SignupPasswordController()
-        controller.delegate = self
-        controller.email = emailTextField.text
-        let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: false, completion: nil)
+        
+        if emailIsRegistered(email: emailTextField.text) {
+            self.errorLabel.isHidden = false
+        } else {
+            let controller = SignupPasswordController()
+            controller.delegate = self
+            controller.email = emailTextField.text
+            let nav = UINavigationController(rootViewController: controller)
+            nav.modalPresentationStyle = .fullScreen
+            self.present(nav, animated: false, completion: nil)
+        }
     }
 }
 

@@ -1,25 +1,28 @@
 //
-//  EditProfileAddProjectController.swift
+//  EditProfileExperienceController.swift
 //  ProjectBuddies
 //
-//  Created by Dominik Strama on 12/03/2021.
+//  Created by Dominik Strama on 05/05/2021.
 //
 
 import UIKit
 
-protocol ProjectEditDelegate: AnyObject {
-    func projectEdit(controller: EditProfileProjectController)
+protocol ExprienceEditDelegate: AnyObject {
+    func experienceEdit(controller: EditProfileExperienceController)
 }
 
-class EditProfileProjectController: UIPageViewController  {
+class EditProfileExperienceController: UIPageViewController {
     
-    var projectEditDelegate: ProjectEditDelegate?
+    //MARK: - Properties
+    
+    var experienceEditDelegate: ExprienceEditDelegate?
     var operationType: String = String()
     var documentId: String = String()
     
-    private var projectName: String? = nil
-    private var projectDescription: String? = nil
-    private var projectTechnologies: String? = nil
+    private var experienceTitle: String? = nil
+    private var experienceCompany: String? = nil
+    private var experienceDescription: String? = nil
+    
     
     var pages = [UIViewController]()
     
@@ -30,16 +33,49 @@ class EditProfileProjectController: UIPageViewController  {
         pc.pageIndicatorTintColor = UIColor.lightGray
         return pc
     }()
+
+    //MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.dataSource = self
         self.delegate = self
-        setupNavigationBar()
         setupPageControl()
+        setupNavigationBar()
+    }
+    
+    //MARK: - Helpers
+    
+    private func setupPageControl() {
+        let initialPage = 0
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
-        view.addGestureRecognizer(tap)
+        let page1 = EditProfileExperienceTitleController()
+        let page2 = EditProfileExperienceCompanyController()
+        let page3 = EditProfileExperienceDescriptionController()
+
+        page1.delegate = self
+        page2.delegate = self
+        page3.delegate = self
+        
+        self.pages.append(page1)
+        self.pages.append(page2)
+        self.pages.append(page3)
+        
+        setViewControllers([pages[initialPage]], direction: .forward, animated: true, completion: nil)
+        self.pageControl.numberOfPages = self.pages.count
+        self.pageControl.currentPage = initialPage
+        
+        removeSwipeGesture()
+        
+        guard let title = experienceTitle else { return }
+        page1.keyTextField.text = title
+        page1.keyTextField.placeholderLabel.isHidden = true
+        guard let company = experienceCompany else { return }
+        page2.keyTextField.text = company
+        page2.keyTextField.placeholderLabel.isHidden = true
+        guard let description = experienceDescription else { return }
+        page3.keyTextField.text = description
+        page3.keyTextField.placeholderLabel.isHidden = true
     }
     
     private func setupNavigationBar() {
@@ -49,87 +85,48 @@ class EditProfileProjectController: UIPageViewController  {
         navigationItem.leftBarButtonItem = backBarButtonItem
     }
     
-    private func setupPageControl() {
-        let initialPage = 0
-        
-        let page1 = EditProfileProjectNameController()
-        let page2 = EditProfileProjectDescriptionController()
-        let page3 = EditProfileProjectTechnologiesController()
-
-
-        page1.delegate = self
-        page2.delegate = self
-        page3.delegate = self
-
-        
-        self.pages.append(page1)
-        self.pages.append(page2)
-        self.pages.append(page3)
-
-        
-        setViewControllers([pages[initialPage]], direction: .forward, animated: true, completion: nil)
-        self.pageControl.numberOfPages = self.pages.count
-        self.pageControl.currentPage = initialPage
-        
-        removeSwipeGesture()
-        
-        guard let title = projectName else { return }
-        page1.keyTextField.text = title
-        page1.keyTextField.placeholderLabel.isHidden = true
-        guard let description = projectDescription else { return }
-        page2.keyTextField.text = description
-        page2.keyTextField.placeholderLabel.isHidden = true
-        guard let technologies = projectTechnologies else { return }
-        page3.keyTextField.text = technologies
-        page3.keyTextField.placeholderLabel.isHidden = true
-    }
-    
-    func setUpProperties(title: String, description: String, technologies: String) {
-        projectName = title
-        projectDescription = description
-        projectTechnologies = technologies
-    }
-    
     private func saveTapped() {
-        guard let title = projectName else { return }
-        guard let description = projectDescription else { return }
-        guard let technologies = projectTechnologies else { return }
-
+        guard let title = experienceTitle else { return }
+        guard let company = experienceCompany else { return }
+        guard let description = experienceDescription else { return }
+        
         if (operationType == "add") {
             showLoader(true)
-            ProjectService.uploadProject(title: title, description: description, technologies: technologies) { error in
-                self.showLoader(false)
-                if let error = error {
-                    print("Error adding project: \(error.localizedDescription)")
-                    return
-                }
-                self.projectEditDelegate?.projectEdit(controller: self)
-            }
-        } else {
-            showLoader(true)
-            print(documentId)
-            ProjectService.updateProject(id: documentId , title: title, description: description, technologies: technologies) { error in
+            ExperienceService.uploadExperience(title: title, company: company, description: description) { error in
                 self.showLoader(false)
                 if let error = error {
                     print("Error adding experience: \(error.localizedDescription)")
                     return
                 }
-                self.projectEditDelegate?.projectEdit(controller: self)
+                self.experienceEditDelegate?.experienceEdit(controller: self)
+            }
+        } else {
+            showLoader(true)
+            ExperienceService.updateExperience(id: documentId , title: title, company: company, description: description) { error in
+                self.showLoader(false)
+                if let error = error {
+                    print("Error adding experience: \(error.localizedDescription)")
+                    return
+                }
+                self.experienceEditDelegate?.experienceEdit(controller: self)
             }
         }
     }
     
+    func setUpProperties(title: String, company: String, description: String) {
+        experienceTitle = title
+        experienceCompany = company
+        experienceDescription = description
+    }
+    
+    //MARK: - Actions
+    
     @objc private func cancelTapped() {
         self.navigationController?.popViewController(animated: true)
     }
-    
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
 }
 
-extension EditProfileProjectController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+extension EditProfileExperienceController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
             
@@ -176,23 +173,23 @@ extension EditProfileProjectController: UIPageViewControllerDataSource, UIPageVi
     }
 }
 
-extension EditProfileProjectController: EditProfileProjectNameDelegate {
-    func continueNextPage(controller: EditProfileProjectNameController) {
-        self.projectName = controller.keyTextField.text
+extension EditProfileExperienceController: EditProfileExperienceTitleDelegate {
+    func continueNextPage(controller: EditProfileExperienceTitleController) {
+        self.experienceTitle = controller.keyTextField.text
         self.goToNextPage()
     }
 }
 
-extension EditProfileProjectController: EditProfileProjectDescriptionDelegate {
-    func continueNextPage(controller: EditProfileProjectDescriptionController) {
-        self.projectDescription = controller.keyTextField.text
+extension EditProfileExperienceController: EditProfileExperienceCompanyDelegate {
+    func continueNextPage(controller: EditProfileExperienceCompanyController) {
+        self.experienceCompany = controller.keyTextField.text
         self.goToNextPage()
     }
 }
 
-extension EditProfileProjectController: EditProfileProjectTechnologiesDelegate {
-    func continueNextPage(controller: EditProfileProjectTechnologiesController) {
-        self.projectTechnologies = controller.keyTextField.text
+extension EditProfileExperienceController: EditProfileExperienceDescriptionDelegate {
+    func continueNextPage(controller:  EditProfileExperienceDescriptionController) {
+        self.experienceDescription = controller.keyTextField.text
         self.saveTapped()
     }
 }

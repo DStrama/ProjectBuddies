@@ -154,6 +154,23 @@ class RoomsController: UITableViewController, UISearchControllerDelegate, UISear
         }
     }
     
+    private func deleteAction(at indexPath: IndexPath) -> UIContextualAction {
+        let action = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion) in
+
+            RoomService.updateAfterRemovingRoom(room: self.rooms[indexPath.row])
+            
+            self.rooms.remove(at: indexPath.row)
+            self.tableView.deleteRows(at: [indexPath], with: .automatic)
+            completion(true)
+        }
+        
+        action.image = UIImage(systemName: "trash")
+        action.backgroundColor = K.Color.red
+        
+        return action
+    }
+    
+    
     // MARK: - Actions
     
     @objc func createRoom() {
@@ -207,21 +224,23 @@ extension RoomsController {
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 104
     }
-    
-    private func deleteAction(at indexPath: IndexPath) -> UIContextualAction {
-        let action = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completion) in
 
-            RoomService.updateAfterRemovingRoom(room: self.rooms[indexPath.row])
-            
-            self.rooms.remove(at: indexPath.row)
-            self.tableView.deleteRows(at: [indexPath], with: .automatic)
-            completion(true)
-        }
-        
-        action.image = UIImage(systemName: "trash")
-        action.backgroundColor = K.Color.red
-        
-        return action
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView.init(frame: CGRect.init(x: 0, y: 0, width: tableView.frame.width, height: 50))
+
+        let label = UILabel()
+        label.frame = CGRect.init(x: 18, y: 0, width: headerView.frame.width - 10, height: headerView.frame.height - 10)
+        label.text = self.rooms.count == 0 ? "You do not belong to any room" : "You belong to \(self.rooms.count) rooms"
+        label.font = .systemFont(ofSize: 16)
+        label.textColor = .gray
+
+        headerView.addSubview(label)
+
+        return headerView
+    }
+
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 40
     }
 }
 
